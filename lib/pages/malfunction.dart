@@ -6,7 +6,7 @@ class MalfunctionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFBDE0FE),
+      backgroundColor: const Color(0xFFFCFBF5),
       appBar: AppBar(
         title:
             const Text('Arıza Defteri', style: TextStyle(color: Colors.black)),

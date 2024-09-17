@@ -11,7 +11,7 @@ class TeamsPage extends StatelessWidget {
         centerTitle: true,
         backgroundColor: const Color(0xFFFCFBF5), // İstediğiniz renk
       ),
-      backgroundColor: const Color(0xFFBDE0FE),
+      backgroundColor: const Color(0xFFFCFBF5),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

@@ -11,7 +11,7 @@ class ProfilePage extends StatelessWidget {
         centerTitle: true,
         backgroundColor: const Color(0xFFFCFBF5), // İstediğiniz renk
       ),
-      backgroundColor: const Color(0xFFF4F6F9),
+      backgroundColor: const Color(0xFFFCFBF5),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

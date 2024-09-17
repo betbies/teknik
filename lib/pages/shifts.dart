@@ -13,7 +13,7 @@ class ShiftsPage extends StatelessWidget {
     bool isShiftCOpen = currentHour >= 0 && currentHour < 8;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFBDE0FE),
+      backgroundColor: const Color(0xFBFAF5),
       appBar: AppBar(
         title: const Text('Vardiyalar'), // Üst bar başlığı
         centerTitle: true,
@@ -57,12 +57,15 @@ class ShiftsPage extends StatelessWidget {
     String content,
     bool isInitiallyExpanded,
   ) {
+    // Arka plan renginin opaklığını yarıya düşür
+    Color backgroundColor = color.withOpacity(0.5);
+
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Colors.white, Color(0xFFDDDDFF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        gradient: LinearGradient(
+          colors: [Colors.white, backgroundColor],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [

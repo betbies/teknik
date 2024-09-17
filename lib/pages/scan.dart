@@ -189,10 +189,6 @@ class _ScanPageState extends State<ScanPage> {
               16.0), // Kamera çerçevesinin etrafındaki boşluk
           decoration: BoxDecoration(
             color: Colors.transparent,
-            border: Border.all(
-              color: Colors.white,
-              width: 2.0, // Çerçeve kalınlığı
-            ),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
