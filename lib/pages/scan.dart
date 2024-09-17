@@ -23,6 +23,8 @@ class _ScanPageState extends State<ScanPage> {
               .withOpacity(0.5), // Arka plan rengini %50 şeffaf beyaz yapıyoruz
           contentPadding:
               EdgeInsets.zero, // İçeriğin etrafındaki boşlukları sıfırla
+          actionsPadding: const EdgeInsets.only(
+              bottom: 4), // Alt boşluk oranını azaltıyoruz
           content: const SizedBox(
             width: 200, // Bu genişliği ihtiyaca göre ayarlayabilirsiniz
             height: 150, // Bu yüksekliği ihtiyaca göre ayarlayabilirsiniz
@@ -60,6 +62,8 @@ class _ScanPageState extends State<ScanPage> {
               .withOpacity(0.5), // Arka plan rengini %50 şeffaf beyaz yapıyoruz
           contentPadding:
               EdgeInsets.zero, // İçeriğin etrafındaki boşlukları sıfırla
+          actionsPadding: const EdgeInsets.only(
+              bottom: 4), // Alt boşluk oranını azaltıyoruz
           content: SizedBox(
             width: MediaQuery.of(context).size.width -
                 32, // Kamera alanının genişliği
