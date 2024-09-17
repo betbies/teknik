@@ -24,8 +24,8 @@ class _ScanPageState extends State<ScanPage> {
           contentPadding:
               EdgeInsets.zero, // İçeriğin etrafındaki boşlukları sıfırla
           content: const SizedBox(
-            width: 200, // Pop-up genişliği
-            height: 150, // Pop-up yüksekliği
+            width: 200, // Bu genişliği ihtiyaca göre ayarlayabilirsiniz
+            height: 150, // Bu yüksekliği ihtiyaca göre ayarlayabilirsiniz
             child: Center(
               child: Text(
                 'Arızayı yazınız...', // Boş bir pop-up için basit bir metin
@@ -61,8 +61,10 @@ class _ScanPageState extends State<ScanPage> {
           contentPadding:
               EdgeInsets.zero, // İçeriğin etrafındaki boşlukları sıfırla
           content: SizedBox(
-            width: 300, // Pop-up genişliği
-            height: 300, // Pop-up yüksekliği
+            width: MediaQuery.of(context).size.width -
+                32, // Kamera alanının genişliği
+            height: MediaQuery.of(context).size.height *
+                0.5, // Kamera alanının yüksekliği
             child: Column(
               children: [
                 Container(
@@ -83,11 +85,10 @@ class _ScanPageState extends State<ScanPage> {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.all(10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            backgroundColor: Colors.red.withOpacity(
-                                0.5), // Arka plan rengini kırmızı ve %50 şeffaf yapıyoruz
+                            shape:
+                                const BeveledRectangleBorder(), // Yuvarlamayı kaldırdık
+                            backgroundColor: Colors.red
+                                .withOpacity(0.5), // Arka plan kırmızı
                             elevation: 0, // Gölgeyi kaldır
                           ).copyWith(
                             foregroundColor: MaterialStateProperty.all(
@@ -113,11 +114,10 @@ class _ScanPageState extends State<ScanPage> {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.all(10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            backgroundColor: Colors.green.withOpacity(
-                                0.5), // Arka plan rengini yeşil ve %50 şeffaf yapıyoruz
+                            shape:
+                                const BeveledRectangleBorder(), // Yuvarlamayı kaldırdık
+                            backgroundColor: Colors.green
+                                .withOpacity(0.5), // Arka plan yeşil
                             elevation: 0, // Gölgeyi kaldır
                           ).copyWith(
                             foregroundColor: MaterialStateProperty.all(
@@ -179,7 +179,6 @@ class _ScanPageState extends State<ScanPage> {
               color: Colors.white,
               width: 2.0, // Çerçeve kalınlığı
             ),
-            // Çerçeve köşe yuvarlamayı kaldırdık
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
