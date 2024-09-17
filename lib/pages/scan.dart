@@ -90,7 +90,7 @@ class _ScanPageState extends State<ScanPage> {
                                 0.5), // Arka plan rengini kırmızı ve %50 şeffaf yapıyoruz
                             elevation: 0, // Gölgeyi kaldır
                           ).copyWith(
-                            foregroundColor: WidgetStateProperty.all(
+                            foregroundColor: MaterialStateProperty.all(
                                 Colors.black), // Buton metin rengi siyah
                           ),
                           onPressed: () {
@@ -120,7 +120,7 @@ class _ScanPageState extends State<ScanPage> {
                                 0.5), // Arka plan rengini yeşil ve %50 şeffaf yapıyoruz
                             elevation: 0, // Gölgeyi kaldır
                           ).copyWith(
-                            foregroundColor: WidgetStateProperty.all(
+                            foregroundColor: MaterialStateProperty.all(
                                 Colors.black), // Buton metin rengi siyah
                           ),
                           onPressed: () {
@@ -179,38 +179,42 @@ class _ScanPageState extends State<ScanPage> {
               color: Colors.white,
               width: 2.0, // Çerçeve kalınlığı
             ),
-            borderRadius: BorderRadius.circular(12.0), // Çerçeve köşe yuvarlama
+            // Çerçeve köşe yuvarlamayı kaldırdık
           ),
-          child: MobileScanner(
-            onDetect: (BarcodeCapture barcodeCapture) {
-              final Barcode? barcode = barcodeCapture.barcodes.isNotEmpty
-                  ? barcodeCapture.barcodes.first
-                  : null;
-              if (barcode != null) {
-                final String? scannedCode = barcode.rawValue;
-                // Taranan kod ile manuel olarak belirttiğiniz kodu karşılaştırıyoruz
-                if (scannedCode != null &&
-                    scannedCode.trim() == _expectedQRCodeContent) {
-                  if (!_popupShown) {
-                    // Pop-up zaten gösterilmiyorsa
-                    setState(() {
-                      _popupShown =
-                          true; // Pop-up'ı göstermek için durumu güncelle
-                    });
-                    _showPopup(context);
-                  }
-                } else if (scannedCode != null) {
-                  if (!_popupShown) {
-                    // Eşleşme yok, sadece "Eşleşme yok" mesajı gösteriliyor
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Eşleşme yok!'),
-                      ),
-                    );
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(
+                16.0), // Kamera çerçevesinin köşelerini yuvarlama
+            child: MobileScanner(
+              onDetect: (BarcodeCapture barcodeCapture) {
+                final Barcode? barcode = barcodeCapture.barcodes.isNotEmpty
+                    ? barcodeCapture.barcodes.first
+                    : null;
+                if (barcode != null) {
+                  final String? scannedCode = barcode.rawValue;
+                  // Taranan kod ile manuel olarak belirttiğiniz kodu karşılaştırıyoruz
+                  if (scannedCode != null &&
+                      scannedCode.trim() == _expectedQRCodeContent) {
+                    if (!_popupShown) {
+                      // Pop-up zaten gösterilmiyorsa
+                      setState(() {
+                        _popupShown =
+                            true; // Pop-up'ı göstermek için durumu güncelle
+                      });
+                      _showPopup(context);
+                    }
+                  } else if (scannedCode != null) {
+                    if (!_popupShown) {
+                      // Eşleşme yok, sadece "Eşleşme yok" mesajı gösteriliyor
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Eşleşme yok!'),
+                        ),
+                      );
+                    }
                   }
                 }
-              }
-            },
+              },
+            ),
           ),
         ),
       ),
