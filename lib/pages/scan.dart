@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart'; // Google Fonts paketini ekliyoruz
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanPage extends StatefulWidget {
@@ -102,10 +103,15 @@ class _ScanPageState extends State<ScanPage> {
                             Navigator.of(context).pop(); // İlk pop-up'ı kapat
                             _showErrorPopup(context); // Yeni pop-up'ı aç
                           },
-                          child: const Center(
+                          child: Center(
                             child: Text(
-                              'Arıza Bildir',
-                              style: TextStyle(fontSize: 16),
+                              'ARIZA BİLDİR',
+                              style: GoogleFonts.tourney(
+                                fontSize: 26, // Daha büyük font boyutu
+                                fontWeight: FontWeight.w700, // Orta kalınlıkta
+                                color: Colors.black, // Yazı rengi siyah
+                              ),
+                              textAlign: TextAlign.center, // Metni ortala
                             ),
                           ),
                         ),
@@ -128,13 +134,17 @@ class _ScanPageState extends State<ScanPage> {
                                 Colors.black), // Buton metin rengi siyah
                           ),
                           onPressed: () {
-                            // Kontrol Edildi butonuna basıldığında yapılacak işlemler
-                            print('Kontrol Edildi butonuna basıldı');
+                            // Kontrol Edildi butonuna basıldığında artık hiçbir işlem yapmıyor
                           },
-                          child: const Center(
+                          child: Center(
                             child: Text(
-                              'Kontrol Edildi',
-                              style: TextStyle(fontSize: 16),
+                              'KONTROL EDİLDİ',
+                              style: GoogleFonts.tourney(
+                                fontSize: 26, // Daha büyük font boyutu
+                                fontWeight: FontWeight.w700, // Orta kalınlıkta
+                                color: Colors.black, // Yazı rengi siyah
+                              ),
+                              textAlign: TextAlign.center, // Metni ortala
                             ),
                           ),
                         ),
