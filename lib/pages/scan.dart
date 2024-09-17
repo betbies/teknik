@@ -23,12 +23,12 @@ class _ScanPageState extends State<ScanPage> {
               .withOpacity(0.5), // Arka plan rengini %50 şeffaf beyaz yapıyoruz
           contentPadding:
               EdgeInsets.zero, // İçeriğin etrafındaki boşlukları sıfırla
-          content: SizedBox(
+          content: const SizedBox(
             width: 200, // Pop-up genişliği
             height: 150, // Pop-up yüksekliği
             child: Center(
               child: Text(
-                'Yeni Pop-up', // Boş bir pop-up için basit bir metin
+                'Arızayı yazınız...', // Boş bir pop-up için basit bir metin
                 style: TextStyle(fontSize: 18, color: Colors.black),
                 textAlign: TextAlign.center,
               ),
@@ -90,7 +90,7 @@ class _ScanPageState extends State<ScanPage> {
                                 0.5), // Arka plan rengini kırmızı ve %50 şeffaf yapıyoruz
                             elevation: 0, // Gölgeyi kaldır
                           ).copyWith(
-                            foregroundColor: MaterialStateProperty.all(
+                            foregroundColor: WidgetStateProperty.all(
                                 Colors.black), // Buton metin rengi siyah
                           ),
                           onPressed: () {
@@ -120,7 +120,7 @@ class _ScanPageState extends State<ScanPage> {
                                 0.5), // Arka plan rengini yeşil ve %50 şeffaf yapıyoruz
                             elevation: 0, // Gölgeyi kaldır
                           ).copyWith(
-                            foregroundColor: MaterialStateProperty.all(
+                            foregroundColor: WidgetStateProperty.all(
                                 Colors.black), // Buton metin rengi siyah
                           ),
                           onPressed: () {
@@ -169,35 +169,50 @@ class _ScanPageState extends State<ScanPage> {
         title: const Text('QR Kod Tarayıcı'),
         centerTitle: true,
       ),
-      body: MobileScanner(
-        onDetect: (BarcodeCapture barcodeCapture) {
-          final Barcode? barcode = barcodeCapture.barcodes.isNotEmpty
-              ? barcodeCapture.barcodes.first
-              : null;
-          if (barcode != null) {
-            final String? scannedCode = barcode.rawValue;
-            // Taranan kod ile manuel olarak belirttiğiniz kodu karşılaştırıyoruz
-            if (scannedCode != null &&
-                scannedCode.trim() == _expectedQRCodeContent) {
-              if (!_popupShown) {
-                // Pop-up zaten gösterilmiyorsa
-                setState(() {
-                  _popupShown = true; // Pop-up'ı göstermek için durumu güncelle
-                });
-                _showPopup(context);
+      body: Center(
+        child: Container(
+          padding: const EdgeInsets.all(
+              16.0), // Kamera çerçevesinin etrafındaki boşluk
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            border: Border.all(
+              color: Colors.white,
+              width: 2.0, // Çerçeve kalınlığı
+            ),
+            borderRadius: BorderRadius.circular(12.0), // Çerçeve köşe yuvarlama
+          ),
+          child: MobileScanner(
+            onDetect: (BarcodeCapture barcodeCapture) {
+              final Barcode? barcode = barcodeCapture.barcodes.isNotEmpty
+                  ? barcodeCapture.barcodes.first
+                  : null;
+              if (barcode != null) {
+                final String? scannedCode = barcode.rawValue;
+                // Taranan kod ile manuel olarak belirttiğiniz kodu karşılaştırıyoruz
+                if (scannedCode != null &&
+                    scannedCode.trim() == _expectedQRCodeContent) {
+                  if (!_popupShown) {
+                    // Pop-up zaten gösterilmiyorsa
+                    setState(() {
+                      _popupShown =
+                          true; // Pop-up'ı göstermek için durumu güncelle
+                    });
+                    _showPopup(context);
+                  }
+                } else if (scannedCode != null) {
+                  if (!_popupShown) {
+                    // Eşleşme yok, sadece "Eşleşme yok" mesajı gösteriliyor
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Eşleşme yok!'),
+                      ),
+                    );
+                  }
+                }
               }
-            } else if (scannedCode != null) {
-              if (!_popupShown) {
-                // Eşleşme yok, sadece "Eşleşme yok" mesajı gösteriliyor
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Eşleşme yok!'),
-                  ),
-                );
-              }
-            }
-          }
-        },
+            },
+          ),
+        ),
       ),
     );
   }
