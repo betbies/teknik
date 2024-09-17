@@ -5,78 +5,101 @@ class ShiftsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int currentHour = DateTime.now().hour;
+
+    // Shift'in otomatik olarak genişletilmesi için kontrol
+    bool isShiftAOpen = currentHour >= 8 && currentHour < 16;
+    bool isShiftBOpen = currentHour >= 16 && currentHour < 24;
+    bool isShiftCOpen = currentHour >= 0 && currentHour < 8;
+
     return Scaffold(
       backgroundColor: const Color(0xFFBDE0FE),
       appBar: AppBar(
-        title: const Text('Vardiyalar', style: TextStyle(color: Colors.black)),
-        backgroundColor: const Color(0xFFFCFBF5),
-        elevation: 0,
+        title: const Text('Vardiyalar'), // Üst bar başlığı
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
+        backgroundColor: const Color(0xFFFCFBF5), // İstediğiniz renk
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            _buildExpansionTile(
-              title: 'Shift A',
-              icon: Icons.wb_sunny,
-              color: Colors.orangeAccent,
-              content: 'Details about the morning shift...',
-            ),
-            const SizedBox(height: 10),
-            _buildExpansionTile(
-              title: 'Shift B',
-              icon: Icons.cloud,
-              color: Colors.blueAccent,
-              content: 'Details about the evening shift...',
-            ),
-            const SizedBox(height: 10),
-            _buildExpansionTile(
-              title: 'Shift C',
-              icon: Icons.nights_stay,
-              color: Colors.deepPurpleAccent,
-              content: 'Details about the night shift...',
-            ),
-          ],
-        ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _buildShiftTile(
+            'Shift A',
+            Icons.wb_sunny,
+            Colors.orangeAccent,
+            'Details about the morning shift...',
+            isShiftAOpen,
+          ),
+          const SizedBox(height: 16),
+          _buildShiftTile(
+            'Shift B',
+            Icons.cloud,
+            Colors.blueAccent,
+            'Details about the evening shift...',
+            isShiftBOpen,
+          ),
+          const SizedBox(height: 16),
+          _buildShiftTile(
+            'Shift C',
+            Icons.nights_stay,
+            Colors.deepPurpleAccent,
+            'Details about the night shift...',
+            isShiftCOpen,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildExpansionTile({
-    required String title,
-    required IconData icon,
-    required Color color,
-    required String content,
-  }) {
-    return Material(
-      borderRadius: BorderRadius.circular(15.0),
-      elevation: 4.0,
-      shadowColor: color.withOpacity(0.5),
-      child: ExpansionTile(
-        backgroundColor: Colors.white,
-        collapsedBackgroundColor: Colors.white,
-        title: Row(
-          children: [
-            Icon(icon, color: color),
-            const SizedBox(width: 10),
-            Text(
-              title,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+  Widget _buildShiftTile(
+    String title,
+    IconData icon,
+    Color color,
+    String content,
+    bool isInitiallyExpanded,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Colors.white, Color(0xFFDDDDFF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.4),
+            spreadRadius: 2,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.all(16),
+          title: Row(
+            children: [
+              Icon(icon, color: color),
+              const SizedBox(width: 10),
+              Text(
+                title,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
               ),
+            ],
+          ),
+          initiallyExpanded: isInitiallyExpanded,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(content, style: const TextStyle(color: Colors.black)),
             ),
           ],
         ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(content, style: const TextStyle(color: Colors.black)),
-          ),
-        ],
       ),
     );
   }

@@ -96,7 +96,7 @@ class _ScanPageState extends State<ScanPage> {
                                 .withOpacity(0.5), // Arka plan kırmızı
                             elevation: 0, // Gölgeyi kaldır
                           ).copyWith(
-                            foregroundColor: MaterialStateProperty.all(
+                            foregroundColor: WidgetStateProperty.all(
                                 Colors.black), // Buton metin rengi siyah
                           ),
                           onPressed: () {
@@ -130,7 +130,7 @@ class _ScanPageState extends State<ScanPage> {
                                 .withOpacity(0.5), // Arka plan yeşil
                             elevation: 0, // Gölgeyi kaldır
                           ).copyWith(
-                            foregroundColor: MaterialStateProperty.all(
+                            foregroundColor: WidgetStateProperty.all(
                                 Colors.black), // Buton metin rengi siyah
                           ),
                           onPressed: () {
