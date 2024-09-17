@@ -9,24 +9,78 @@ class ScanPage extends StatefulWidget {
 }
 
 class _ScanPageState extends State<ScanPage> {
-  // PNG'den çözümlenmiş QR kod içeriğini düz metin olarak buraya girin
   final String _expectedQRCodeContent =
       'https://www.tthotels.com/tr'; // Buraya gerçek QR kod içeriğini ekleyin
-
   bool _popupShown =
       false; // Pop-up'ın gösterilip gösterilmediğini takip eden değişken
 
-  // Eşleşme olduğunda pop-up açmak için bu fonksiyon kullanılıyor
-  void _showPopup(BuildContext context, String scannedCode) {
+  void _showPopup(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('QR Kodu Tanındı'),
-          content: Text('QR kodu başarıyla tanındı: $scannedCode'),
+          backgroundColor: Colors.white
+              .withOpacity(0.5), // Arka plan rengini %50 şeffaf beyaz yapıyoruz
+          contentPadding:
+              EdgeInsets.zero, // İçeriğin etrafındaki boşlukları sıfırla
+          content: SizedBox(
+            width: 300, // Pop-up genişliği
+            height: 300, // Pop-up yüksekliği
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10), // Başlık kenar boşlukları
+                  child: const Text(
+                    '1. Makine',
+                    style: TextStyle(
+                      fontSize: 18, // Başlık font boyutu
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center, // Başlığı ortala
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          color: Colors.red.withOpacity(
+                              0.5), // Arka plan rengini kırmızı ve %50 şeffaf yapıyoruz
+                          child: const Center(
+                            child: Text(
+                              'Arıza Bildir',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: 2,
+                        color: Colors.black, // Siyah çizgi
+                      ),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          color: Colors.green.withOpacity(
+                              0.5), // Arka plan rengini yeşil ve %50 şeffaf yapıyoruz
+                          child: const Center(
+                            child: Text(
+                              'Kontrol Edildi',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
           actions: [
             TextButton(
-              child: const Text('Tamam'),
+              child: const Text('Kapat'),
               onPressed: () {
                 Navigator.of(context).pop();
                 setState(() {
@@ -52,10 +106,8 @@ class _ScanPageState extends State<ScanPage> {
           final Barcode? barcode = barcodeCapture.barcodes.isNotEmpty
               ? barcodeCapture.barcodes.first
               : null;
-
           if (barcode != null) {
             final String? scannedCode = barcode.rawValue;
-
             // Taranan kod ile manuel olarak belirttiğiniz kodu karşılaştırıyoruz
             if (scannedCode != null &&
                 scannedCode.trim() == _expectedQRCodeContent) {
@@ -64,14 +116,14 @@ class _ScanPageState extends State<ScanPage> {
                 setState(() {
                   _popupShown = true; // Pop-up'ı göstermek için durumu güncelle
                 });
-                _showPopup(context, scannedCode);
+                _showPopup(context);
               }
             } else if (scannedCode != null) {
               if (!_popupShown) {
-                // Pop-up zaten gösterilmiyorsa
+                // Eşleşme yok, sadece "Eşleşme yok" mesajı gösteriliyor
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Eşleşme yok! Taranan QR kodu: $scannedCode'),
+                  const SnackBar(
+                    content: Text('Eşleşme yok!'),
                   ),
                 );
               }
