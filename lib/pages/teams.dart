@@ -6,6 +6,11 @@ class TeamsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Ekipler'), // Üst bar başlığı
+        centerTitle: true,
+        backgroundColor: const Color(0xFFFCFBF5), // İstediğiniz renk
+      ),
       backgroundColor: const Color(0xFFBDE0FE),
       body: ListView(
         padding: const EdgeInsets.all(16),

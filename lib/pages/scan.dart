@@ -166,7 +166,8 @@ class _ScanPageState extends State<ScanPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('QR Kodu Tarayıcı'),
+        title: const Text('QR Kod Tarayıcı'),
+        centerTitle: true,
       ),
       body: MobileScanner(
         onDetect: (BarcodeCapture barcodeCapture) {

@@ -6,6 +6,11 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profil'), // Üst bar başlığı
+        centerTitle: true,
+        backgroundColor: const Color(0xFFFCFBF5), // İstediğiniz renk
+      ),
       backgroundColor: const Color(0xFFF4F6F9),
       body: Center(
         child: Padding(
