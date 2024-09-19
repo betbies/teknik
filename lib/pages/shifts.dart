@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ShiftsPage extends StatelessWidget {
+class ShiftsPage extends StatefulWidget {
   const ShiftsPage({super.key});
+
+  @override
+  _ShiftsPageState createState() => _ShiftsPageState();
+}
+
+class _ShiftsPageState extends State<ShiftsPage> {
+  DateTime selectedDate = DateTime.now();
+  late int day, month, year;
+
+  @override
+  void initState() {
+    super.initState();
+    day = selectedDate.day;
+    month = selectedDate.month;
+    year = selectedDate.year;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +84,7 @@ class ShiftsPage extends StatelessWidget {
             currentHour,
             false,
             true,
-            "gündüz vardiyası"),
+            "Gündüz Vardiyası"),
         const SizedBox(height: 16),
         _buildShiftTile(
             'Shift B',
@@ -80,7 +96,7 @@ class ShiftsPage extends StatelessWidget {
             currentHour,
             false,
             false,
-            "akşam vardiyası"),
+            "Akşam Vardiyası"),
         const SizedBox(height: 16),
         _buildShiftTile(
             'Shift C',
@@ -92,7 +108,7 @@ class ShiftsPage extends StatelessWidget {
             currentHour,
             true,
             false,
-            "gece vardiyası"),
+            "Gece Vardiyası"),
       ];
     } else {
       shifts = [
@@ -106,7 +122,7 @@ class ShiftsPage extends StatelessWidget {
             currentHour,
             true,
             false,
-            "akşam vardiyası"),
+            "Akşam Vardiyası"),
         const SizedBox(height: 16),
         _buildShiftTile(
             'Shift C',
@@ -118,7 +134,7 @@ class ShiftsPage extends StatelessWidget {
             currentHour,
             false,
             false,
-            "gece vardiyası"),
+            "Gece Vardiyası"),
         const SizedBox(height: 16),
         _buildShiftTile(
             'Shift A',
@@ -130,7 +146,7 @@ class ShiftsPage extends StatelessWidget {
             currentHour,
             false,
             true,
-            "gündüz vardiyası"),
+            "Gündüz Vardiyası"),
       ];
     }
 
@@ -145,7 +161,7 @@ class ShiftsPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(4),
             color: const Color(0xFFFCFBF5),
             child: Center(
               child: Row(
@@ -174,6 +190,90 @@ class ShiftsPage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: shifts,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border(
+                  top: BorderSide(color: Colors.grey.shade300, width: 1)),
+              color: const Color(0xFFFCFBF5),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButton<int>(
+                          value: day,
+                          items: List.generate(31, (index) => index + 1)
+                              .map((day) => DropdownMenuItem<int>(
+                                    value: day,
+                                    child: Text(day.toString()),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              day = value ?? day;
+                            });
+                          },
+                          hint: const Text('Gün'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: DropdownButton<int>(
+                          value: month,
+                          items: List.generate(12, (index) => index + 1)
+                              .map((month) => DropdownMenuItem<int>(
+                                    value: month,
+                                    child: Text(month.toString()),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              month = value ?? month;
+                            });
+                          },
+                          hint: const Text('Ay'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: DropdownButton<int>(
+                          value: year,
+                          items: List.generate(10, (index) => 2024 - index)
+                              .map((year) => DropdownMenuItem<int>(
+                                    value: year,
+                                    child: Text(year.toString()),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              year = value ?? year;
+                            });
+                          },
+                          hint: const Text('Yıl'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    // Tarih seçimini işle
+                    final selected = DateTime(year, month, day);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text('Tarihe git: ${selected.toLocal()}')),
+                    );
+                  },
+                  child: const Text('Tarihe Git'),
+                ),
+              ],
             ),
           ),
         ],
@@ -211,7 +311,7 @@ class ShiftsPage extends StatelessWidget {
     int currentHour,
     bool isPastShift,
     bool isFutureShift,
-    String shiftType, // Yeni eklenen parametre
+    String shiftType,
   ) {
     Color backgroundColor = color.withOpacity(0.5);
 
