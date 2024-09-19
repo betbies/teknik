@@ -75,7 +75,7 @@ class _ScanPageState extends State<ScanPage> {
                 Container(
                   padding: const EdgeInsets.all(10), // Başlık kenar boşlukları
                   child: const Text(
-                    '1. Makine',
+                    'ISITMA KAZANI 1',
                     style: TextStyle(
                       fontSize: 18, // Başlık font boyutu
                       fontWeight: FontWeight.bold,

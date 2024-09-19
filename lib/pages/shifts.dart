@@ -8,12 +8,50 @@ class ShiftsPage extends StatelessWidget {
     int currentHour = DateTime.now().hour;
 
     // Shift'in otomatik olarak genişletilmesi için kontrol
-    bool isShiftAOpen = currentHour >= 8 && currentHour < 16;
-    bool isShiftBOpen = currentHour >= 16 && currentHour < 24;
-    bool isShiftCOpen = currentHour >= 0 && currentHour < 8;
+    bool isShiftA = currentHour >= 8 && currentHour < 16;
+    bool isShiftB = currentHour >= 16 && currentHour < 24;
+    bool isShiftC = currentHour >= 0 && currentHour < 8;
+
+    List<Widget> shifts;
+
+    // Şu anki vardiyaya göre sıralamayı belirliyoruz
+    if (isShiftA) {
+      shifts = [
+        _buildShiftTile('Shift C', Icons.nights_stay, Colors.deepPurpleAccent,
+            'Details about the night shift...', false),
+        const SizedBox(height: 16),
+        _buildShiftTile('Shift A', Icons.wb_sunny, Colors.orangeAccent,
+            'Details about the morning shift...', true),
+        const SizedBox(height: 16),
+        _buildShiftTile('Shift B', Icons.cloud, Colors.blueAccent,
+            'Details about the evening shift...', false),
+      ];
+    } else if (isShiftB) {
+      shifts = [
+        _buildShiftTile('Shift A', Icons.wb_sunny, Colors.orangeAccent,
+            'Details about the morning shift...', false),
+        const SizedBox(height: 16),
+        _buildShiftTile('Shift B', Icons.cloud, Colors.blueAccent,
+            'Details about the evening shift...', true),
+        const SizedBox(height: 16),
+        _buildShiftTile('Shift C', Icons.nights_stay, Colors.deepPurpleAccent,
+            'Details about the night shift...', false),
+      ];
+    } else {
+      shifts = [
+        _buildShiftTile('Shift B', Icons.cloud, Colors.blueAccent,
+            'Details about the evening shift...', false),
+        const SizedBox(height: 16),
+        _buildShiftTile('Shift C', Icons.nights_stay, Colors.deepPurpleAccent,
+            'Details about the night shift...', true),
+        const SizedBox(height: 16),
+        _buildShiftTile('Shift A', Icons.wb_sunny, Colors.orangeAccent,
+            'Details about the morning shift...', false),
+      ];
+    }
 
     return Scaffold(
-      backgroundColor: const Color(0xFBFAF5),
+      backgroundColor: const Color(0x00fbfaf5),
       appBar: AppBar(
         title: const Text('Vardiyalar'), // Üst bar başlığı
         centerTitle: true,
@@ -21,31 +59,7 @@ class ShiftsPage extends StatelessWidget {
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: [
-          _buildShiftTile(
-            'Shift A',
-            Icons.wb_sunny,
-            Colors.orangeAccent,
-            'Details about the morning shift...',
-            isShiftAOpen,
-          ),
-          const SizedBox(height: 16),
-          _buildShiftTile(
-            'Shift B',
-            Icons.cloud,
-            Colors.blueAccent,
-            'Details about the evening shift...',
-            isShiftBOpen,
-          ),
-          const SizedBox(height: 16),
-          _buildShiftTile(
-            'Shift C',
-            Icons.nights_stay,
-            Colors.deepPurpleAccent,
-            'Details about the night shift...',
-            isShiftCOpen,
-          ),
-        ],
+        children: shifts,
       ),
     );
   }
