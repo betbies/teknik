@@ -17,36 +17,108 @@ class ShiftsPage extends StatelessWidget {
     // Şu anki vardiyaya göre sıralamayı belirliyoruz
     if (isShiftA) {
       shifts = [
-        _buildShiftTile('Shift C', Icons.nights_stay, Colors.deepPurpleAccent,
-            'Details about the night shift...', false),
+        _buildShiftTile(
+            'Shift C',
+            Icons.nights_stay,
+            Colors.deepPurpleAccent,
+            'Details about the night shift...',
+            false,
+            0,
+            currentHour,
+            true,
+            false),
         const SizedBox(height: 16),
-        _buildShiftTile('Shift A', Icons.wb_sunny, Colors.orangeAccent,
-            'Details about the morning shift...', true),
+        _buildShiftTile(
+            'Shift A',
+            Icons.wb_sunny,
+            Colors.orangeAccent,
+            'Details about the morning shift...',
+            true,
+            8,
+            currentHour,
+            false,
+            false),
         const SizedBox(height: 16),
-        _buildShiftTile('Shift B', Icons.cloud, Colors.blueAccent,
-            'Details about the evening shift...', false),
+        _buildShiftTile(
+            'Shift B',
+            Icons.cloud,
+            Colors.blueAccent,
+            'Details about the evening shift...',
+            false,
+            16,
+            currentHour,
+            false,
+            true),
       ];
     } else if (isShiftB) {
       shifts = [
-        _buildShiftTile('Shift A', Icons.wb_sunny, Colors.orangeAccent,
-            'Details about the morning shift...', false),
+        _buildShiftTile(
+            'Shift A',
+            Icons.wb_sunny,
+            Colors.orangeAccent,
+            'Details about the morning shift...',
+            false,
+            8,
+            currentHour,
+            false,
+            true),
         const SizedBox(height: 16),
-        _buildShiftTile('Shift B', Icons.cloud, Colors.blueAccent,
-            'Details about the evening shift...', true),
+        _buildShiftTile(
+            'Shift B',
+            Icons.cloud,
+            Colors.blueAccent,
+            'Details about the evening shift...',
+            true,
+            16,
+            currentHour,
+            false,
+            false),
         const SizedBox(height: 16),
-        _buildShiftTile('Shift C', Icons.nights_stay, Colors.deepPurpleAccent,
-            'Details about the night shift...', false),
+        _buildShiftTile(
+            'Shift C',
+            Icons.nights_stay,
+            Colors.deepPurpleAccent,
+            'Details about the night shift...',
+            false,
+            0,
+            currentHour,
+            true,
+            false),
       ];
     } else {
       shifts = [
-        _buildShiftTile('Shift B', Icons.cloud, Colors.blueAccent,
-            'Details about the evening shift...', false),
+        _buildShiftTile(
+            'Shift B',
+            Icons.cloud,
+            Colors.blueAccent,
+            'Details about the evening shift...',
+            false,
+            16,
+            currentHour,
+            true,
+            false),
         const SizedBox(height: 16),
-        _buildShiftTile('Shift C', Icons.nights_stay, Colors.deepPurpleAccent,
-            'Details about the night shift...', true),
+        _buildShiftTile(
+            'Shift C',
+            Icons.nights_stay,
+            Colors.deepPurpleAccent,
+            'Details about the night shift...',
+            true,
+            0,
+            currentHour,
+            false,
+            false),
         const SizedBox(height: 16),
-        _buildShiftTile('Shift A', Icons.wb_sunny, Colors.orangeAccent,
-            'Details about the morning shift...', false),
+        _buildShiftTile(
+            'Shift A',
+            Icons.wb_sunny,
+            Colors.orangeAccent,
+            'Details about the morning shift...',
+            false,
+            8,
+            currentHour,
+            false,
+            true),
       ];
     }
 
@@ -64,15 +136,50 @@ class ShiftsPage extends StatelessWidget {
     );
   }
 
+  // Vardiyanın kaç saat önce bittiğini hesaplayan fonksiyon
+  String _hoursAgo(int shiftEndHour, int currentHour) {
+    if (currentHour < shiftEndHour) {
+      return ''; // Henüz bitmemiş vardiya için boş dön.
+    } else {
+      int hoursAgo = currentHour - shiftEndHour;
+      return '$hoursAgo saat önce bitti';
+    }
+  }
+
+  // Vardiyanın kaç saat sonra başlayacağını hesaplayan fonksiyon
+  String _hoursUntil(int shiftStartHour, int currentHour) {
+    if (currentHour >= shiftStartHour && currentHour < (shiftStartHour + 8)) {
+      return ''; // Vardiya devam ediyorsa boş döner.
+    } else if (currentHour >= (shiftStartHour + 8)) {
+      return ''; // Vardiya bitmişse boş döner.
+    } else {
+      int hoursUntil = shiftStartHour - currentHour;
+      return '$hoursUntil saat sonra başlayacak';
+    }
+  }
+
   Widget _buildShiftTile(
     String title,
     IconData icon,
     Color color,
     String content,
     bool isInitiallyExpanded,
+    int shiftHour, // Vardiyanın başlangıç saati
+    int currentHour, // Şu anki saat
+    bool isPastShift, // Vardiya bitti mi?
+    bool isFutureShift, // Vardiya henüz başlamadı mı?
   ) {
     // Arka plan renginin opaklığını yarıya düşür
     Color backgroundColor = color.withOpacity(0.5);
+
+    String statusText;
+    if (isPastShift) {
+      statusText = _hoursAgo(shiftHour + 8, currentHour); // Vardiya bitiş saati
+    } else if (isFutureShift) {
+      statusText = _hoursUntil(shiftHour, currentHour);
+    } else {
+      statusText = 'Devam ediyor';
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -96,15 +203,30 @@ class ShiftsPage extends StatelessWidget {
         child: ExpansionTile(
           tilePadding: const EdgeInsets.all(16),
           title: Row(
+            mainAxisAlignment: MainAxisAlignment
+                .spaceBetween, // İkon ve metin arasındaki boşluğu ayarlama
             children: [
-              Icon(icon, color: color),
-              const SizedBox(width: 10),
+              Row(
+                children: [
+                  Icon(icon, color: color),
+                  const SizedBox(width: 10),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: color,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ],
+              ),
+              // Kutu kapalıyken durum bilgisini gösteriyoruz
               Text(
-                title,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
+                statusText,
+                style: const TextStyle(
+                  color: Colors.black54,
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
                 ),
               ),
             ],
