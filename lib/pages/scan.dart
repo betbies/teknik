@@ -11,7 +11,7 @@ class ScanPage extends StatefulWidget {
 
 class _ScanPageState extends State<ScanPage> {
   final String _expectedQRCodeContent =
-      'https://www.tthotels.com/tr'; // Buraya gerçek QR kod içeriğini ekleyin
+      'https://www.tthotels.com/en/hotel/aqi-pegasos-resort/b/isitmakazani1'; // Buraya gerçek QR kod içeriğini ekleyin
   bool _popupShown =
       false; // Pop-up'ın gösterilip gösterilmediğini takip eden değişken
 
@@ -187,7 +187,7 @@ class _ScanPageState extends State<ScanPage> {
         child: Container(
           padding: const EdgeInsets.all(
               16.0), // Kamera çerçevesinin etrafındaki boşluk
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.transparent,
           ),
           child: ClipRRect(
