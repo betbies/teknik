@@ -307,22 +307,26 @@ class _ShiftsPageState extends State<ShiftsPage> {
   }
 
   String _hoursAgo(int shiftEndHour, int currentHour) {
-    if (currentHour < shiftEndHour) {
-      return ''; // Şu anki saat bitiş saatinden önceyse, bu mesajı göstermeyiz.
-    } else {
-      int hoursAgo = currentHour - shiftEndHour;
-      return '$hoursAgo saat önce bitti';
+    // Mevcut saat ve vardiya bitiş saati arasındaki saat farkını hesapla.
+    int hoursAgo = (currentHour - shiftEndHour + 24) % 24;
+    if (hoursAgo < 0) {
+      hoursAgo += 24; // Negatif değerler için düzeltme.
     }
+    return (hoursAgo > 0) ? '$hoursAgo saat önce bitti' : '';
   }
 
   String _hoursUntil(int shiftStartHour, int currentHour) {
+    int hoursUntil = (shiftStartHour - currentHour + 24) % 24;
+    if (hoursUntil < 0) {
+      hoursUntil += 24; // Negatif değerler için düzeltme.
+    }
+
     if (currentHour < shiftStartHour) {
-      int hoursUntil = shiftStartHour - currentHour;
       return '$hoursUntil saat sonra başlayacak';
     } else if (currentHour < shiftStartHour + 8) {
-      return ''; // Şu anki saat shift başlangıç saatinin içindeyse, bu mesajı göstermeyiz.
+      return 'Devam ediyor';
     } else {
-      int hoursUntil = (24 - currentHour) + shiftStartHour;
+      hoursUntil = (24 - currentHour + shiftStartHour) % 24;
       return '$hoursUntil saat sonra başlayacak';
     }
   }
