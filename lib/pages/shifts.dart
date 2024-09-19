@@ -12,14 +12,12 @@ class ShiftsPage extends StatelessWidget {
 
     int currentHour = now.hour;
 
-    // Shift'in otomatik olarak genişletilmesi için kontrol
     bool isShiftA = currentHour >= 8 && currentHour < 16;
     bool isShiftB = currentHour >= 16 && currentHour < 24;
     bool isShiftC = currentHour >= 0 && currentHour < 8;
 
     List<Widget> shifts;
 
-    // Şu anki vardiyaya göre sıralamayı belirliyoruz
     if (isShiftA) {
       shifts = [
         _buildShiftTile(
@@ -31,7 +29,8 @@ class ShiftsPage extends StatelessWidget {
             0,
             currentHour,
             true,
-            false),
+            false,
+            "Gece Vardiyası"),
         const SizedBox(height: 16),
         _buildShiftTile(
             'Shift A',
@@ -42,7 +41,8 @@ class ShiftsPage extends StatelessWidget {
             8,
             currentHour,
             false,
-            false),
+            false,
+            "Gündüz Vardiyası"),
         const SizedBox(height: 16),
         _buildShiftTile(
             'Shift B',
@@ -53,7 +53,8 @@ class ShiftsPage extends StatelessWidget {
             16,
             currentHour,
             false,
-            true),
+            true,
+            "Akşam Vardiyası"),
       ];
     } else if (isShiftB) {
       shifts = [
@@ -66,7 +67,8 @@ class ShiftsPage extends StatelessWidget {
             8,
             currentHour,
             false,
-            true),
+            true,
+            "gündüz vardiyası"),
         const SizedBox(height: 16),
         _buildShiftTile(
             'Shift B',
@@ -77,7 +79,8 @@ class ShiftsPage extends StatelessWidget {
             16,
             currentHour,
             false,
-            false),
+            false,
+            "akşam vardiyası"),
         const SizedBox(height: 16),
         _buildShiftTile(
             'Shift C',
@@ -88,7 +91,8 @@ class ShiftsPage extends StatelessWidget {
             0,
             currentHour,
             true,
-            false),
+            false,
+            "gece vardiyası"),
       ];
     } else {
       shifts = [
@@ -101,7 +105,8 @@ class ShiftsPage extends StatelessWidget {
             16,
             currentHour,
             true,
-            false),
+            false,
+            "akşam vardiyası"),
         const SizedBox(height: 16),
         _buildShiftTile(
             'Shift C',
@@ -112,7 +117,8 @@ class ShiftsPage extends StatelessWidget {
             0,
             currentHour,
             false,
-            false),
+            false,
+            "gece vardiyası"),
         const SizedBox(height: 16),
         _buildShiftTile(
             'Shift A',
@@ -123,23 +129,24 @@ class ShiftsPage extends StatelessWidget {
             8,
             currentHour,
             false,
-            true),
+            true,
+            "gündüz vardiyası"),
       ];
     }
 
     return Scaffold(
       backgroundColor: const Color(0x00fbfaf5),
       appBar: AppBar(
-        title: const Text('Vardiyalar'), // Üst bar başlığı
+        title: const Text('Vardiyalar'),
         centerTitle: true,
-        backgroundColor: const Color(0xFFFCFBF5), // İstediğiniz renk
+        backgroundColor: const Color(0xFFFCFBF5),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            color: const Color(0xFFFCFBF5), // Arka plan rengi
+            color: const Color(0xFFFCFBF5),
             child: Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -174,22 +181,20 @@ class ShiftsPage extends StatelessWidget {
     );
   }
 
-  // Vardiyanın kaç saat önce bittiğini hesaplayan fonksiyon
   String _hoursAgo(int shiftEndHour, int currentHour) {
     if (currentHour < shiftEndHour) {
-      return ''; // Henüz bitmemiş vardiya için boş dön.
+      return '';
     } else {
       int hoursAgo = currentHour - shiftEndHour;
       return '$hoursAgo saat önce bitti';
     }
   }
 
-  // Vardiyanın kaç saat sonra başlayacağını hesaplayan fonksiyon
   String _hoursUntil(int shiftStartHour, int currentHour) {
     if (currentHour >= shiftStartHour && currentHour < (shiftStartHour + 8)) {
-      return ''; // Vardiya devam ediyorsa boş döner.
+      return '';
     } else if (currentHour >= (shiftStartHour + 8)) {
-      return ''; // Vardiya bitmişse boş döner.
+      return '';
     } else {
       int hoursUntil = shiftStartHour - currentHour;
       return '$hoursUntil saat sonra başlayacak';
@@ -202,17 +207,17 @@ class ShiftsPage extends StatelessWidget {
     Color color,
     String content,
     bool isInitiallyExpanded,
-    int shiftHour, // Vardiyanın başlangıç saati
-    int currentHour, // Şu anki saat
-    bool isPastShift, // Vardiya bitti mi?
-    bool isFutureShift, // Vardiya henüz başlamadı mı?
+    int shiftHour,
+    int currentHour,
+    bool isPastShift,
+    bool isFutureShift,
+    String shiftType, // Yeni eklenen parametre
   ) {
-    // Arka plan renginin opaklığını yarıya düşür
     Color backgroundColor = color.withOpacity(0.5);
 
     String statusText;
     if (isPastShift) {
-      statusText = _hoursAgo(shiftHour + 8, currentHour); // Vardiya bitiş saati
+      statusText = _hoursAgo(shiftHour + 8, currentHour);
     } else if (isFutureShift) {
       statusText = _hoursUntil(shiftHour, currentHour);
     } else {
@@ -240,31 +245,42 @@ class ShiftsPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         child: ExpansionTile(
           tilePadding: const EdgeInsets.all(16),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment
-                .spaceBetween, // İkon ve metin arasındaki boşluğu ayarlama
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(icon, color: color),
-                  const SizedBox(width: 10),
+                  Row(
+                    children: [
+                      Icon(icon, color: color),
+                      const SizedBox(width: 10),
+                      Text(
+                        title,
+                        style: TextStyle(
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
                   Text(
-                    title,
-                    style: TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                    statusText,
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
                     ),
                   ),
                 ],
               ),
-              // Kutu kapalıyken durum bilgisini gösteriyoruz
+              const SizedBox(height: 4),
               Text(
-                statusText,
+                shiftType,
                 style: const TextStyle(
-                  color: Colors.black54,
+                  color: Colors.black45,
                   fontSize: 12,
-                  fontStyle: FontStyle.italic,
                 ),
               ),
             ],
