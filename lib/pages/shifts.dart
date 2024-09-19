@@ -264,12 +264,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () {
-                    // Tarih seçimini işle
                     final selected = DateTime(year, month, day);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text('Tarihe git: ${selected.toLocal()}')),
-                    );
                   },
                   child: const Text('Tarihe Git'),
                 ),
