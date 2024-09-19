@@ -82,8 +82,8 @@ class _ShiftsPageState extends State<ShiftsPage> {
             false,
             8,
             currentHour,
-            false,
             true,
+            false,
             "Gündüz Vardiyası"),
         const SizedBox(height: 16),
         _buildShiftTile(
@@ -106,8 +106,8 @@ class _ShiftsPageState extends State<ShiftsPage> {
             false,
             0,
             currentHour,
-            true,
             false,
+            true,
             "Gece Vardiyası"),
       ];
     } else {
@@ -308,7 +308,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
 
   String _hoursAgo(int shiftEndHour, int currentHour) {
     if (currentHour < shiftEndHour) {
-      return '';
+      return ''; // Şu anki saat bitiş saatinden önceyse, bu mesajı göstermeyiz.
     } else {
       int hoursAgo = currentHour - shiftEndHour;
       return '$hoursAgo saat önce bitti';
@@ -316,12 +316,13 @@ class _ShiftsPageState extends State<ShiftsPage> {
   }
 
   String _hoursUntil(int shiftStartHour, int currentHour) {
-    if (currentHour >= shiftStartHour && currentHour < (shiftStartHour + 8)) {
-      return '';
-    } else if (currentHour >= (shiftStartHour + 8)) {
-      return '';
-    } else {
+    if (currentHour < shiftStartHour) {
       int hoursUntil = shiftStartHour - currentHour;
+      return '$hoursUntil saat sonra başlayacak';
+    } else if (currentHour < shiftStartHour + 8) {
+      return ''; // Şu anki saat shift başlangıç saatinin içindeyse, bu mesajı göstermeyiz.
+    } else {
+      int hoursUntil = (24 - currentHour) + shiftStartHour;
       return '$hoursUntil saat sonra başlayacak';
     }
   }
@@ -342,11 +343,11 @@ class _ShiftsPageState extends State<ShiftsPage> {
 
     String statusText;
     if (isPastShift) {
-      statusText = _hoursAgo(shiftHour + 8, currentHour);
+      statusText = _hoursAgo(shiftHour + 8, currentHour); // Bitmiş shift için
     } else if (isFutureShift) {
-      statusText = _hoursUntil(shiftHour, currentHour);
+      statusText = _hoursUntil(shiftHour, currentHour); // Başlayacak shift için
     } else {
-      statusText = 'Devam ediyor';
+      statusText = 'Devam ediyor'; // Aktif shift için
     }
 
     return Container(
