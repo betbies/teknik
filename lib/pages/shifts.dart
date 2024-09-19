@@ -193,10 +193,11 @@ class _ShiftsPageState extends State<ShiftsPage> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(8, 2, 8, 8),
             decoration: BoxDecoration(
               border: Border(
-                  top: BorderSide(color: Colors.grey.shade300, width: 1)),
+                top: BorderSide(color: Colors.grey.shade300, width: 1),
+              ),
               color: const Color(0xFFFCFBF5),
             ),
             child: Row(
@@ -211,7 +212,11 @@ class _ShiftsPageState extends State<ShiftsPage> {
                           items: List.generate(31, (index) => index + 1)
                               .map((day) => DropdownMenuItem<int>(
                                     value: day,
-                                    child: Text(day.toString()),
+                                    child: Text(
+                                      day.toString(),
+                                      style: const TextStyle(
+                                          fontSize: 12), // Smaller font size
+                                    ),
                                   ))
                               .toList(),
                           onChanged: (value) {
@@ -219,17 +224,25 @@ class _ShiftsPageState extends State<ShiftsPage> {
                               day = value ?? day;
                             });
                           },
-                          hint: const Text('Gün'),
+                          hint: const Text(
+                            'Gün',
+                            style: TextStyle(fontSize: 12), // Smaller font size
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(
+                          width: 4), // Reduced space between dropdowns
                       Expanded(
                         child: DropdownButton<int>(
                           value: month,
                           items: List.generate(12, (index) => index + 1)
                               .map((month) => DropdownMenuItem<int>(
                                     value: month,
-                                    child: Text(month.toString()),
+                                    child: Text(
+                                      month.toString(),
+                                      style: const TextStyle(
+                                          fontSize: 12), // Smaller font size
+                                    ),
                                   ))
                               .toList(),
                           onChanged: (value) {
@@ -237,17 +250,25 @@ class _ShiftsPageState extends State<ShiftsPage> {
                               month = value ?? month;
                             });
                           },
-                          hint: const Text('Ay'),
+                          hint: const Text(
+                            'Ay',
+                            style: TextStyle(fontSize: 12), // Smaller font size
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(
+                          width: 4), // Reduced space between dropdowns
                       Expanded(
                         child: DropdownButton<int>(
                           value: year,
                           items: List.generate(10, (index) => 2024 - index)
                               .map((year) => DropdownMenuItem<int>(
                                     value: year,
-                                    child: Text(year.toString()),
+                                    child: Text(
+                                      year.toString(),
+                                      style: const TextStyle(
+                                          fontSize: 12), // Smaller font size
+                                    ),
                                   ))
                               .toList(),
                           onChanged: (value) {
@@ -255,7 +276,10 @@ class _ShiftsPageState extends State<ShiftsPage> {
                               year = value ?? year;
                             });
                           },
-                          hint: const Text('Yıl'),
+                          hint: const Text(
+                            'Yıl',
+                            style: TextStyle(fontSize: 12), // Smaller font size
+                          ),
                         ),
                       ),
                     ],
@@ -266,6 +290,12 @@ class _ShiftsPageState extends State<ShiftsPage> {
                   onPressed: () {
                     final selected = DateTime(year, month, day);
                   },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4), // Reduced padding
+                    textStyle:
+                        const TextStyle(fontSize: 12), // Smaller text size
+                  ),
                   child: const Text('Tarihe Git'),
                 ),
               ],
