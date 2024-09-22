@@ -312,6 +312,9 @@ class _ShiftsPageState extends State<ShiftsPage> {
     if (hoursAgo < 0) {
       hoursAgo += 24; // Negatif değerler için düzeltme.
     }
+    if (hoursAgo == 0) {
+      return 'Biraz önce bitti';
+    }
     return (hoursAgo > 0) ? '$hoursAgo saat önce bitti' : '';
   }
 
@@ -322,11 +325,17 @@ class _ShiftsPageState extends State<ShiftsPage> {
     }
 
     if (currentHour < shiftStartHour) {
+      if (hoursUntil == 0) {
+        return 'Biraz sonra başlayacak';
+      }
       return '$hoursUntil saat sonra başlayacak';
     } else if (currentHour < shiftStartHour + 8) {
       return 'Devam ediyor';
     } else {
       hoursUntil = (24 - currentHour + shiftStartHour) % 24;
+      if (hoursUntil == 0) {
+        return 'Biraz sonra başlayacak';
+      }
       return '$hoursUntil saat sonra başlayacak';
     }
   }
