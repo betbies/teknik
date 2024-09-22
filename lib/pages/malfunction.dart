@@ -86,24 +86,28 @@ class MalfunctionPage extends StatelessWidget {
                 color: Colors.black54,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 4), // Tarih ve saat arasında boşluk
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(
-                  date,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black45,
-                  ),
-                ),
-                const SizedBox(width: 8), // Tarih ile saat arasında boşluk
-                Text(
-                  time,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black45,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      date,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black45,
+                      ),
+                    ),
+                    Text(
+                      time,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black45,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
