@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Intl paketini ekleyin
 
 class MalfunctionPage extends StatelessWidget {
   const MalfunctionPage({super.key});
@@ -44,6 +45,9 @@ class MalfunctionPage extends StatelessWidget {
     required String date,
     required String time,
   }) {
+    // Tarihi gün/ay/yıl formatına dönüştür
+    final formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.parse(date));
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -52,7 +56,7 @@ class MalfunctionPage extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
             blurRadius: 4.0,
-            offset: const Offset(0, 2), // Shadow position
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -63,9 +67,9 @@ class MalfunctionPage extends StatelessWidget {
             const Icon(
               Icons.person,
               size: 24,
-              color: Colors.black, // İkon rengi siyah yapıldı
+              color: Colors.black,
             ),
-            const SizedBox(width: 8), // İkon ile metin arasında boşluk
+            const SizedBox(width: 8),
             Text(
               member,
               style: const TextStyle(
@@ -86,7 +90,7 @@ class MalfunctionPage extends StatelessWidget {
                 color: Colors.black54,
               ),
             ),
-            const SizedBox(height: 4), // Tarih ve saat arasında boşluk
+            const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -94,7 +98,7 @@ class MalfunctionPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      date,
+                      formattedDate, // Formatlanmış tarihi kullan
                       style: const TextStyle(
                         fontSize: 14,
                         color: Colors.black45,
