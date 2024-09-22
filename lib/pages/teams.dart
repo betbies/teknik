@@ -23,6 +23,9 @@ class TeamsPage extends StatelessWidget {
           const SizedBox(height: 16),
           _buildTeamTile(
               context, 'Club Teknik Servis Ekibi', ['Üye 1', 'Üye 2']),
+          const SizedBox(height: 16),
+          _buildTeamTile(context, 'Yönetim Ekibi',
+              ['Üye 1', 'Üye 2']), // Yönetim Ekibi eklendi
         ],
       ),
     );
@@ -61,6 +64,7 @@ class TeamsPage extends StatelessWidget {
           ),
           children: members
               .map((member) => ListTile(
+                    leading: const Icon(Icons.person), // Profil resmi ikonu
                     title: Text(
                       member,
                       style: const TextStyle(color: Colors.black54),
