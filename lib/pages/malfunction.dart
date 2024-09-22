@@ -31,13 +31,13 @@ class MalfunctionPage extends StatelessWidget {
               date: '2024-08-25',
               time: '14:30',
             ),
-            const SizedBox(height: 10),
             _buildMalfunctionEntry(
               member: 'Üye 1',
               description: 'Ekran yanıt vermiyor, yardım bekliyorum.',
               date: '2024-08-24',
               time: '09:15',
             ),
+            // Daha fazla arıza girişi eklemek için buraya ekleyebilirsin
           ],
         ),
       ),
@@ -67,63 +67,68 @@ class MalfunctionPage extends StatelessWidget {
             ),
           ],
         ),
-        child: ListTile(
-          contentPadding: const EdgeInsets.all(16.0),
-          title: Row(
-            children: [
-              const Icon(
-                Icons.person,
-                size: 24,
-                color: Colors.black,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                member,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ],
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                description,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black54,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+        child: Column(
+          children: [
+            ListTile(
+              contentPadding: const EdgeInsets.all(16.0),
+              title: Row(
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  const Icon(
+                    Icons.person,
+                    size: 24,
+                    color: Colors.black,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    member,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    description,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Text(
-                        formattedDate,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.black45,
-                        ),
-                      ),
-                      Text(
-                        time,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.black45,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            formattedDate,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black45,
+                            ),
+                          ),
+                          Text(
+                            time,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black45,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 10), // Sabit yükseklik aralığı
+          ],
         ),
       ),
     );
@@ -138,22 +143,15 @@ class OldPaperPainter extends CustomPainter {
       ..color = const Color(0xFFF5DEB3); // Eski kağıt rengi
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paintBrown);
 
-    // Hafif doku eklemek için rastgele çizgiler
-    final paintTexture = Paint()..color = Colors.brown.withOpacity(0.15);
-    for (double i = 0; i < size.width; i += 8) {
-      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paintTexture);
-    }
-
     // Yatay çizgiler (kağıt üzerindeki hafif çizgiler)
-    final paintDarkGrey = Paint()
+    final paintLine = Paint()
       ..color = Colors.brown.withOpacity(0.25)
       ..strokeWidth = 1.0;
 
-    // Çizgi sayısını 6'ya düşür
-    for (double i = 0; i < 6; i++) {
-      double position = size.height * (i / 6);
-      canvas.drawLine(
-          Offset(0, position), Offset(size.width, position), paintDarkGrey);
+    // Çizgileri her bir arıza girişi için yerleştir
+    double lineHeight = 25; // Sabit satır yüksekliği
+    for (double i = lineHeight; i < size.height; i += lineHeight) {
+      canvas.drawLine(Offset(0, i), Offset(size.width, i), paintLine);
     }
 
     // Sayfanın kenarlarına hafif gölgeler
