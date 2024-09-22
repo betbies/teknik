@@ -87,6 +87,13 @@ class MalfunctionPage extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFFFFF), // Yuvarlak rengi
                         shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 3.0,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                     ),
                   ),
