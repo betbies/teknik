@@ -7,8 +7,20 @@ class MalfunctionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFCFBF5), // Sayfa arkaplan rengi
+      appBar: AppBar(
+        title: const Text(
+          'Arıza Defteri',
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: const Color(0xFFFCFBF5), // AppBar arka plan rengi
+        elevation: 0, // AppBar gölgesi kaldırıldı
+        centerTitle: true, // Başlığı ortala
+        iconTheme:
+            const IconThemeData(color: Colors.black), // Geri okunun rengi
+      ),
       body: CustomPaint(
-        painter: PagePainter(),
+        painter: OldPaperPainter(),
         child: Container(
           padding: const EdgeInsets.all(16.0),
           width: double.infinity,
@@ -117,44 +129,62 @@ class MalfunctionPage extends StatelessWidget {
   }
 }
 
-class PagePainter extends CustomPainter {
+class OldPaperPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    // Defter sayfası arka planı
-    final paintWhite = Paint()..color = Colors.white;
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paintWhite);
+    // Saman kağıdı rengi (daha soluk, sararmış)
+    final paintBrown = Paint()
+      ..color = const Color(0xFFF5DEB3); // Eski kağıt rengi
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paintBrown);
 
-    // Yatay çizgiler
+    // Hafif doku eklemek için rastgele çizgiler
+    final paintTexture = Paint()..color = Colors.brown.withOpacity(0.15);
+    for (double i = 0; i < size.width; i += 8) {
+      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paintTexture);
+    }
+
+    // Kağıdın daha doğal görünmesi için hafif düzensiz dairesel lekeler ekleyelim
+    final paintSpots = Paint()..color = Colors.brown.withOpacity(0.05);
+    for (double i = 0; i < size.width; i += 80) {
+      for (double j = 0; j < size.height; j += 80) {
+        canvas.drawCircle(Offset(i + (j % 30), j), 10, paintSpots);
+      }
+    }
+
+    // Yatay çizgiler (kağıt üzerindeki hafif çizgiler)
     final paintDarkGrey = Paint()
-      ..color = Colors.blueGrey
+      ..color = Colors.brown.withOpacity(0.25)
       ..strokeWidth = 1.0;
-    for (double i = 0; i < 15; i++) {
-      double position = size.height * (i / 15);
+    for (double i = 0; i < 20; i++) {
+      double position = size.height * (i / 20);
       canvas.drawLine(
           Offset(0, position), Offset(size.width, position), paintDarkGrey);
     }
 
-    // Pembe dikey çizgi
+    // Dikey çizgi (eski defter stili)
     final paintPink = Paint()
-      ..color = Colors.pinkAccent
+      ..color = Colors.brown.withOpacity(0.3)
       ..strokeWidth = 2.5;
     canvas.drawLine(Offset(size.width * .1, 0),
         Offset(size.width * .1, size.height), paintPink);
 
-    // Başlık çizgisi
-    final paintHeaderLine = Paint()
-      ..color = Colors.black54
-      ..strokeWidth = 2.0;
-    canvas.drawLine(Offset(0, 0), Offset(size.width, 0), paintHeaderLine);
+    // Sayfanın kenarlarına hafif gölgeler
+    final paintEdges = Paint()
+      ..color = Colors.brown.withOpacity(0.2)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10.0);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.fromLTWH(0, 0, size.width, size.height),
+            const Radius.circular(15)),
+        paintEdges);
   }
 
   @override
-  bool shouldRepaint(PagePainter oldDelegate) {
+  bool shouldRepaint(OldPaperPainter oldDelegate) {
     return false;
   }
 
   @override
-  bool shouldRebuildSemantics(PagePainter oldDelegate) {
+  bool shouldRebuildSemantics(OldPaperPainter oldDelegate) {
     return false;
   }
 }
