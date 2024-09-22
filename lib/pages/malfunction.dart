@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Intl paketini ekleyin
+import 'package:intl/intl.dart';
 
 class MalfunctionPage extends StatelessWidget {
   const MalfunctionPage({super.key});
@@ -7,33 +7,29 @@ class MalfunctionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFCFBF5),
-      appBar: AppBar(
-        title:
-            const Text('Arıza Defteri', style: TextStyle(color: Colors.black)),
-        backgroundColor: const Color(0xFFFCFBF5),
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            _buildMalfunctionEntry(
-              member: 'Üye 1',
-              description: 'Bugün cihaz açılmıyor, lütfen kontrol edin.',
-              date: '2024-08-25',
-              time: '14:30',
-            ),
-            const SizedBox(height: 10),
-            _buildMalfunctionEntry(
-              member: 'Üye 1',
-              description: 'Ekran yanıt vermiyor, yardım bekliyorum.',
-              date: '2024-08-24',
-              time: '09:15',
-            ),
-          ],
+      body: CustomPaint(
+        painter: PagePainter(),
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          width: double.infinity,
+          height: double.infinity,
+          child: ListView(
+            children: [
+              _buildMalfunctionEntry(
+                member: 'Üye 1',
+                description: 'Bugün cihaz açılmıyor, lütfen kontrol edin.',
+                date: '2024-08-25',
+                time: '14:30',
+              ),
+              const SizedBox(height: 10),
+              _buildMalfunctionEntry(
+                member: 'Üye 1',
+                description: 'Ekran yanıt vermiyor, yardım bekliyorum.',
+                date: '2024-08-24',
+                time: '09:15',
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -45,7 +41,6 @@ class MalfunctionPage extends StatelessWidget {
     required String date,
     required String time,
   }) {
-    // Tarihi gün/ay/yıl formatına dönüştür
     final formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.parse(date));
 
     return Container(
@@ -98,7 +93,7 @@ class MalfunctionPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      formattedDate, // Formatlanmış tarihi kullan
+                      formattedDate,
                       style: const TextStyle(
                         fontSize: 14,
                         color: Colors.black45,
@@ -119,5 +114,47 @@ class MalfunctionPage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class PagePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Defter sayfası arka planı
+    final paintWhite = Paint()..color = Colors.white;
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paintWhite);
+
+    // Yatay çizgiler
+    final paintDarkGrey = Paint()
+      ..color = Colors.blueGrey
+      ..strokeWidth = 1.0;
+    for (double i = 0; i < 15; i++) {
+      double position = size.height * (i / 15);
+      canvas.drawLine(
+          Offset(0, position), Offset(size.width, position), paintDarkGrey);
+    }
+
+    // Pembe dikey çizgi
+    final paintPink = Paint()
+      ..color = Colors.pinkAccent
+      ..strokeWidth = 2.5;
+    canvas.drawLine(Offset(size.width * .1, 0),
+        Offset(size.width * .1, size.height), paintPink);
+
+    // Başlık çizgisi
+    final paintHeaderLine = Paint()
+      ..color = Colors.black54
+      ..strokeWidth = 2.0;
+    canvas.drawLine(Offset(0, 0), Offset(size.width, 0), paintHeaderLine);
+  }
+
+  @override
+  bool shouldRepaint(PagePainter oldDelegate) {
+    return false;
+  }
+
+  @override
+  bool shouldRebuildSemantics(PagePainter oldDelegate) {
+    return false;
   }
 }
