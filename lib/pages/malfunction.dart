@@ -20,20 +20,18 @@ class MalfunctionPage extends StatelessWidget {
         child: ListView(
           children: [
             _buildMalfunctionEntry(
-              title: 'Arıza 1',
-              description:
-                  'Bu arıza, cihazın açılmaması ile ilgili bir sorunu içerir.',
+              member: 'Üye 1',
+              description: 'Bugün cihaz açılmıyor, lütfen kontrol edin.',
               date: '2024-08-25',
-              isTransparentBackground: true,
+              time: '14:30',
             ),
             const SizedBox(height: 10),
             _buildMalfunctionEntry(
-              title: 'Arıza 2',
-              description: 'Bu arıza, ekranın yanıt vermemesi ile ilgilidir.',
+              member: 'Üye 1',
+              description: 'Ekran yanıt vermiyor, yardım bekliyorum.',
               date: '2024-08-24',
-              isTransparentBackground: true,
+              time: '09:15',
             ),
-            // Üçüncü arıza kaydını kaldırdık.
           ],
         ),
       ),
@@ -41,16 +39,14 @@ class MalfunctionPage extends StatelessWidget {
   }
 
   Widget _buildMalfunctionEntry({
-    required String title,
+    required String member,
     required String description,
     required String date,
-    bool isTransparentBackground = false,
+    required String time,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: isTransparentBackground
-            ? Colors.white.withOpacity(0.8)
-            : Colors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(15.0),
         boxShadow: [
           BoxShadow(
@@ -62,27 +58,56 @@ class MalfunctionPage extends StatelessWidget {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(16.0),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+        title: Row(
+          children: [
+            const Icon(
+              Icons.person,
+              size: 24,
+              color: Colors.black, // İkon rengi siyah yapıldı
+            ),
+            const SizedBox(width: 8), // İkon ile metin arasında boşluk
+            Text(
+              member,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ],
         ),
-        subtitle: Text(
-          description,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.black54,
-          ),
-        ),
-        trailing: Text(
-          date,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.black45,
-          ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              description,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black54,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  date,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black45,
+                  ),
+                ),
+                const SizedBox(width: 8), // Tarih ile saat arasında boşluk
+                Text(
+                  time,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black45,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
