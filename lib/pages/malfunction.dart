@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:math'; // Rastgele sayı üretmek için
 
 class MalfunctionPage extends StatelessWidget {
   const MalfunctionPage({super.key});
@@ -39,7 +40,6 @@ class MalfunctionPage extends StatelessWidget {
               time: '09:15',
             ),
             const SizedBox(height: 20), // İki arıza girişi arasında boşluk
-            // Daha fazla arıza girişi eklemek için buraya ekleyebilirsin
           ],
         ),
       ),
@@ -53,108 +53,116 @@ class MalfunctionPage extends StatelessWidget {
     required String time,
   }) {
     final formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.parse(date));
+    final random = Random();
+    final randomAngle =
+        (random.nextDouble() - 0.5) * 0.2; // -0.1 ile 0.1 arasında rastgele açı
 
     return Stack(
       children: [
-        CustomPaint(
-          painter: OldPaperPainter(),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white
-                  .withOpacity(0.1), // İçerik arka planı için hafif beyaz
-              borderRadius: BorderRadius.zero,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 4.0,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                const SizedBox(
-                    height: 10), // Yuvarlakları aşağıya kaydırmak için
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(
-                    9,
-                    (index) => Container(
-                      width: 15, // Yuvarlak boyutu
-                      height: 15,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFFFFF), // Yuvarlak rengi
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 3.0,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+        Transform(
+          alignment: Alignment.topLeft,
+          transform: Matrix4.identity()
+            ..rotateZ(randomAngle), // Rastgele açı ile döndür
+          child: CustomPaint(
+            painter: OldPaperPainter(),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white
+                    .withOpacity(0.1), // İçerik arka planı için hafif beyaz
+                borderRadius: BorderRadius.zero,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4.0,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(
+                      height: 10), // Yuvarlakları aşağıya kaydırmak için
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(
+                      9,
+                      (index) => Container(
+                        width: 15, // Yuvarlak boyutu
+                        height: 15,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFFFFF), // Yuvarlak rengi
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 3.0,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                ListTile(
-                  contentPadding: const EdgeInsets.all(16.0),
-                  title: Row(
-                    children: [
-                      const Icon(
-                        Icons.person,
-                        size: 24,
-                        color: Colors.black,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        member,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                  ListTile(
+                    contentPadding: const EdgeInsets.all(16.0),
+                    title: Row(
+                      children: [
+                        const Icon(
+                          Icons.person,
+                          size: 24,
                           color: Colors.black,
                         ),
-                      ),
-                    ],
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        description,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black54,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                formattedDate,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black45,
-                                ),
-                              ),
-                              Text(
-                                time,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black45,
-                                ),
-                              ),
-                            ],
+                        const SizedBox(width: 8),
+                        Text(
+                          member,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          description,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  formattedDate,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black45,
+                                  ),
+                                ),
+                                Text(
+                                  time,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black45,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
