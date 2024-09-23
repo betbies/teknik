@@ -73,15 +73,13 @@ class MalfunctionPage extends StatelessWidget {
             ),
             child: Column(
               children: [
-                // Yuvarlaklar için yukarıdan boşluk
                 const SizedBox(
                     height: 10), // Yuvarlakları aşağıya kaydırmak için
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List.generate(
                     9,
-                    (index) => // 9 tane yuvarlak
-                        Container(
+                    (index) => Container(
                       width: 15, // Yuvarlak boyutu
                       height: 15,
                       decoration: BoxDecoration(
@@ -168,20 +166,25 @@ class MalfunctionPage extends StatelessWidget {
 class OldPaperPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    // Saman kağıdı rengi (daha soluk, sararmış)
     final paintBrown = Paint()
       ..color = const Color(0xFFF5DEB3); // Eski kağıt rengi
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paintBrown);
 
-    // Yatay çizgiler (kağıt üzerindeki hafif çizgiler)
     final paintLine = Paint()
       ..color = Colors.brown.withOpacity(0.25)
       ..strokeWidth = 1.0;
 
-    // Çizgileri her bir arıza girişi için yerleştir
     double lineHeight = 24; // Sabit satır yüksekliği
     for (double i = lineHeight; i < size.height; i += lineHeight) {
       canvas.drawLine(Offset(0, i), Offset(size.width, i), paintLine);
+    }
+
+    // Kesik çizgileri ekle
+    paintLine.color = Colors.brown.withOpacity(0.5);
+    paintLine.strokeWidth = 1.5;
+    double dashHeight = 4; // Kesik çizgilerin yüksekliği
+    for (double i = 0; i < size.height; i += 10) {
+      canvas.drawLine(Offset(0, i), Offset(0, i + dashHeight), paintLine);
     }
 
     // Sayfanın kenarlarına hafif gölgeler
@@ -189,7 +192,7 @@ class OldPaperPainter extends CustomPainter {
       ..color = Colors.brown.withOpacity(0.2)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10.0);
     canvas.drawRect(
-      Rect.fromLTWH(0, 0, size.width, size.height), // Dik köşeler
+      Rect.fromLTWH(0, 0, size.width, size.height),
       paintEdges,
     );
   }
