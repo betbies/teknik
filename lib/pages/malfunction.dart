@@ -166,6 +166,21 @@ class MalfunctionPage extends StatelessWidget {
             ),
           ),
         ),
+        Positioned(
+          top: 8, // Y ekseninde konum
+          left: 0, // X ekseninde konum
+          right: 0, // Eşit bir şekilde sağa da yerleştirmek için
+          child: Center(
+            child: Transform.rotate(
+              angle: -0.5, // Ataşı biraz döndür
+              child: const Icon(
+                Icons.attach_file, // Ataş simgesi
+                size: 30,
+                color: Colors.brown, // Ataş rengi
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
