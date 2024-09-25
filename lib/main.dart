@@ -5,6 +5,8 @@ import 'pages/shifts.dart';
 import 'pages/scan.dart';
 import 'pages/malfunction.dart';
 import 'pages/profile.dart';
+import 'auth/login.dart'; // Login sayfasını içe aktar
+import 'auth/signup.dart'; // Signup sayfasını içe aktar
 
 void main() {
   runApp(const MyApp());
@@ -43,8 +45,20 @@ class MyApp extends StatelessWidget {
             const Color(0xFFFCFBF5), // Background color of the Scaffold
         cardColor: const Color(0xFFDDEEFA), // Background color of cards
       ),
-      home: const HomePage(),
+      home: const RootPage(), // İlk sayfa RootPage olacak
     );
+  }
+}
+
+class RootPage extends StatelessWidget {
+  const RootPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    bool isLoggedIn = false; // Geçici giriş durumu (false ise Login'e gider)
+
+    // Eğer giriş yapılmışsa HomePage'e, yapılmamışsa LoginPage'e yönlendirir
+    return isLoggedIn ? HomePage() : LoginPage();
   }
 }
 
