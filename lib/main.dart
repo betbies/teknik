@@ -6,9 +6,12 @@ import 'pages/scan.dart';
 import 'pages/malfunction.dart';
 import 'pages/profile.dart';
 import 'auth/login.dart'; // Login sayfasını içe aktar
-import 'auth/signup.dart'; // Signup sayfasını içe aktar
+// Signup sayfasını içe aktar
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // Firebase'i başlat
   runApp(const MyApp());
 }
 
@@ -58,7 +61,7 @@ class RootPage extends StatelessWidget {
     bool isLoggedIn = false; // Geçici giriş durumu (false ise Login'e gider)
 
     // Eğer giriş yapılmışsa HomePage'e, yapılmamışsa LoginPage'e yönlendirir
-    return isLoggedIn ? HomePage() : LoginPage();
+    return isLoggedIn ? const HomePage() : const LoginPage();
   }
 }
 
@@ -90,6 +93,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Geri tuşunu kaldırır
         title: const Text('TEKNİK'),
       ),
       body: _pages[_selectedIndex],

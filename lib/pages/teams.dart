@@ -7,6 +7,7 @@ class TeamsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Geri tuşunu kaldırır
         title: const Text('Ekipler'), // Üst bar başlığı
         centerTitle: true,
         backgroundColor: const Color(0xFFFCFBF5), // İstediğiniz renk

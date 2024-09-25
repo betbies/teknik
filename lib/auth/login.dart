@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'signup.dart'; // SignupPage'i içe aktar
+import '../main.dart'; // HomePage'i içe aktar
 
 class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFCFBF5),
+      backgroundColor: const Color(0xFFFCFBF5),
       appBar: AppBar(
-        backgroundColor: Color(0xFF6CAEED),
-        title: Text('Login', style: TextStyle(color: Color(0xFFFBFAF5))),
+        automaticallyImplyLeading: false, // Geri tuşunu kaldırır
+        backgroundColor: const Color(0xFF6CAEED),
+        title: const Text('Login', style: TextStyle(color: Color(0xFFFBFAF5))),
         centerTitle: true,
       ),
       body: Center(
@@ -24,7 +28,7 @@ class LoginPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  const Text(
                     'Welcome Back!',
                     style: TextStyle(
                       fontSize: 24,
@@ -32,76 +36,83 @@ class LoginPage extends StatelessWidget {
                       color: Color(0xFF181A18),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   TextField(
                     decoration: InputDecoration(
                       labelText: 'Email',
-                      labelStyle: TextStyle(color: Color(0xFF181A18)),
+                      labelStyle: const TextStyle(color: Color(0xFF181A18)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Color(0xFF6CAEED)),
+                        borderSide: const BorderSide(color: Color(0xFF6CAEED)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Color(0xFF6CAEED)),
+                        borderSide: const BorderSide(color: Color(0xFF6CAEED)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Color(0xFFDDEEFA)),
+                        borderSide: const BorderSide(color: Color(0xFFDDEEFA)),
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextField(
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      labelStyle: TextStyle(color: Color(0xFF181A18)),
+                      labelStyle: const TextStyle(color: Color(0xFF181A18)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Color(0xFF6CAEED)),
+                        borderSide: const BorderSide(color: Color(0xFF6CAEED)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Color(0xFF6CAEED)),
+                        borderSide: const BorderSide(color: Color(0xFF6CAEED)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Color(0xFFDDEEFA)),
+                        borderSide: const BorderSide(color: Color(0xFFDDEEFA)),
                       ),
                     ),
                   ),
-                  SizedBox(height: 32),
-                  Container(
+                  const SizedBox(height: 32),
+                  SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Login işlemi
+                        // Login işlemi sonrası ana sayfaya yönlendir
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const HomePage()),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF6CAEED),
-                        padding: EdgeInsets.symmetric(vertical: 15),
+                        backgroundColor: const Color(0xFF6CAEED),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Login',
                         style:
                             TextStyle(color: Color(0xFFFBFAF5), fontSize: 16),
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   GestureDetector(
                     onTap: () {
                       // Signup sayfasına git
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SignupPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const SignupPage(),
+                        ),
                       );
                     },
-                    child: Text(
+                    child: const Text(
                       "Don't have an account? Sign Up",
                       style: TextStyle(
                         color: Color(0xFF6CAEED),

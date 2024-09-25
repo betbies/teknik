@@ -10,6 +10,7 @@ class MalfunctionPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFFCFBF5), // Sayfa arkaplan rengi
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Geri tuşunu kaldırır
         title: const Text(
           'Arıza Defteri',
           style: TextStyle(color: Colors.black),

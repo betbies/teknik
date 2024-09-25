@@ -1,14 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login.dart'; // LoginPage'i içe aktar
 
-class SignupPage extends StatelessWidget {
+class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
+
+  @override
+  _SignupPageState createState() => _SignupPageState();
+}
+
+class _SignupPageState extends State<SignupPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _registerUser() async {
+    try {
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      // Save user details to Firestore
+      await _firestore.collection('users').doc(userCredential.user!.uid).set({
+        'name': _nameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      // Optionally navigate to another page or show a success message
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    } catch (e) {
+      // Handle error (e.g., show a message)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFCFBF5), // Arka plan rengi
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Geri tuşunu kaldırır
         backgroundColor: const Color(0xFF6CAEED), // AppBar rengi
         title:
             const Text('Sign Up', style: TextStyle(color: Color(0xFFFBFAF5))),
@@ -36,8 +79,9 @@ class SignupPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const TextField(
-                    decoration: InputDecoration(
+                  TextField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(
                       labelText: 'Full Name',
                       labelStyle: TextStyle(color: Color(0xFF181A18)),
                       border: OutlineInputBorder(
@@ -54,8 +98,9 @@ class SignupPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const TextField(
-                    decoration: InputDecoration(
+                  TextField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
                       labelText: 'Email',
                       labelStyle: TextStyle(color: Color(0xFF181A18)),
                       border: OutlineInputBorder(
@@ -72,9 +117,10 @@ class SignupPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const TextField(
+                  TextField(
+                    controller: _passwordController,
                     obscureText: true,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Password',
                       labelStyle: TextStyle(color: Color(0xFF181A18)),
                       border: OutlineInputBorder(
@@ -94,9 +140,7 @@ class SignupPage extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Sign up işlemi
-                      },
+                      onPressed: _registerUser,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6CAEED),
                         padding: const EdgeInsets.symmetric(vertical: 15),
@@ -117,7 +161,8 @@ class SignupPage extends StatelessWidget {
                       // Login sayfasına git
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
+                        MaterialPageRoute(
+                            builder: (context) => const LoginPage()),
                       );
                     },
                     child: const Text(

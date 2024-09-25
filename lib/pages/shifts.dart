@@ -153,6 +153,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
     return Scaffold(
       backgroundColor: const Color(0x00fbfaf5),
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Geri tuşunu kaldırır
         title: const Text('Vardiyalar'),
         centerTitle: true,
         backgroundColor: const Color(0xFFFCFBF5),

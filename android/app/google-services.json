@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "889356957852",
+    "project_id": "teknik-b",
+    "storage_bucket": "teknik-b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:889356957852:android:12b3cf71cacb3241e11559",
+        "android_client_info": {
+          "package_name": "com.example.teknik1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCK3uRJJQpA3Oez0OTfOsAzKuMJdU1Kas"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

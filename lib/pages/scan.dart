@@ -180,6 +180,7 @@ class _ScanPageState extends State<ScanPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Geri tuşunu kaldırır
         title: const Text('QR Kod Tarayıcı'),
         centerTitle: true,
       ),

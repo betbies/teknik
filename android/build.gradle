@@ -6,6 +6,9 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:8.3.0' // AGP sürümünü kontrol edin
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0" // Kotlin sürümünü güncelleyin
+        classpath 'com.google.gms:google-services:4.4.2'
+
+        
     }
 }
 
