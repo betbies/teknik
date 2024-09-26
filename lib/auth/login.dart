@@ -29,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
       );
     } on FirebaseAuthException catch (e) {
       setState(() {
-        _errorMessage = e.message ?? 'An error occurred. Please try again.';
+        _errorMessage = e.message ?? 'Bir hata oluştu. Lütfen tekrar deneyin.';
       });
     }
   }
@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false, // Geri tuşunu kaldırır
         backgroundColor: const Color(0xFF6CAEED),
-        title: const Text('Login', style: TextStyle(color: Color(0xFFFBFAF5))),
+        title: const Text('Giriş', style: TextStyle(color: Color(0xFFFBFAF5))),
         centerTitle: true,
       ),
       body: Center(
@@ -58,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
-                    'Welcome Back!',
+                    'Tekrar Hoşgeldiniz!',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -90,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                     controller: _passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
-                      labelText: 'Password',
+                      labelText: 'Şifre',
                       labelStyle: const TextStyle(color: Color(0xFF181A18)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -125,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       child: const Text(
-                        'Login',
+                        'Giriş',
                         style: TextStyle(
                           color: Color(0xFFFBFAF5),
                           fontSize: 16,
@@ -145,7 +145,7 @@ class _LoginPageState extends State<LoginPage> {
                       );
                     },
                     child: const Text(
-                      "Don't have an account? Sign Up",
+                      "Hesabınız yok mu? Üye ol.",
                       style: TextStyle(
                         color: Color(0xFF6CAEED),
                         fontSize: 14,

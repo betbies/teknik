@@ -53,7 +53,7 @@ class _SignupPageState extends State<SignupPage> {
 
       // Kayıt başarılı olunca bildirim göster
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration successful!')),
+        SnackBar(content: Text('Kayıt başarılı!')),
       );
 
       // Kayıt başarılı olunca giriş sayfasına yönlendir
@@ -95,8 +95,7 @@ class _SignupPageState extends State<SignupPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: const Color(0xFF6CAEED),
-        title:
-            const Text('Sign Up', style: TextStyle(color: Color(0xFFFBFAF5))),
+        title: const Text('Kayıt', style: TextStyle(color: Color(0xFFFBFAF5))),
         centerTitle: true,
       ),
       body: Center(
@@ -113,7 +112,7 @@ class _SignupPageState extends State<SignupPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
-                    'Create Account',
+                    'Hesap Oluştur',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -124,7 +123,7 @@ class _SignupPageState extends State<SignupPage> {
                   TextField(
                     controller: _nameController,
                     decoration: const InputDecoration(
-                      labelText: 'Full Name',
+                      labelText: 'İsim',
                       labelStyle: TextStyle(color: Color(0xFF181A18)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -163,7 +162,7 @@ class _SignupPageState extends State<SignupPage> {
                     controller: _passwordController,
                     obscureText: true,
                     decoration: const InputDecoration(
-                      labelText: 'Password',
+                      labelText: 'Şifre',
                       labelStyle: TextStyle(color: Color(0xFF181A18)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -183,7 +182,7 @@ class _SignupPageState extends State<SignupPage> {
                     controller:
                         _phoneController, // Telefon numarası için TextField
                     decoration: const InputDecoration(
-                      labelText: 'Phone Number',
+                      labelText: 'Telefon',
                       labelStyle: TextStyle(color: Color(0xFF181A18)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -204,7 +203,7 @@ class _SignupPageState extends State<SignupPage> {
                     onTap: () => _selectDate(context),
                     child: InputDecorator(
                       decoration: const InputDecoration(
-                        labelText: 'Date of Birth',
+                        labelText: 'Doğum Tarihi',
                         labelStyle: TextStyle(color: Color(0xFF181A18)),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -221,7 +220,7 @@ class _SignupPageState extends State<SignupPage> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12.0),
                         child: Text(
-                          _selectedDob ?? 'Select your birth date',
+                          _selectedDob ?? 'Doğum tarihinizi seçin',
                           style: const TextStyle(color: Color(0xFF181A18)),
                         ),
                       ),
@@ -231,7 +230,7 @@ class _SignupPageState extends State<SignupPage> {
                   // Adres Seçimi DropdownButton
                   DropdownButtonFormField<String>(
                     value: _selectedAddress,
-                    hint: const Text('Select Address'),
+                    hint: const Text('Adres'),
                     items: [
                       'AQI Pegasos Resort Hotel',
                       'AQI Pegasos Royal Hotel',
@@ -258,7 +257,7 @@ class _SignupPageState extends State<SignupPage> {
                   // Meslek Seçimi DropdownButton
                   DropdownButtonFormField<String>(
                     value: _selectedOccupation,
-                    hint: const Text('Select Occupation'),
+                    hint: const Text('Meslek'),
                     items: [
                       'Elektrikçi',
                       'Tesisatçı',
@@ -295,7 +294,7 @@ class _SignupPageState extends State<SignupPage> {
                                 AlwaysStoppedAnimation<Color>(Colors.white),
                           )
                         : const Text(
-                            'Sign Up',
+                            'Kayıt Ol',
                             style: TextStyle(
                                 color:
                                     Colors.white), // Yazı rengini beyaz yapıldı
@@ -314,7 +313,7 @@ class _SignupPageState extends State<SignupPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Already have an account?'),
+                      const Text('Zaten bir hesabınız var mı?'),
                       TextButton(
                         onPressed: () {
                           Navigator.pushReplacement(
@@ -323,7 +322,7 @@ class _SignupPageState extends State<SignupPage> {
                                 builder: (context) => const LoginPage()),
                           );
                         },
-                        child: const Text('Login'),
+                        child: const Text('Giriş Yapın'),
                       ),
                     ],
                   ),
