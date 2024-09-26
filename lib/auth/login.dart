@@ -125,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       child: const Text(
-                        'Giriş',
+                        'Giriş Yap',
                         style: TextStyle(
                           color: Color(0xFFFBFAF5),
                           fontSize: 16,
@@ -145,7 +145,7 @@ class _LoginPageState extends State<LoginPage> {
                       );
                     },
                     child: const Text(
-                      "Hesabınız yok mu? Üye ol.",
+                      "Hesabınız yok mu? Üye olun.",
                       style: TextStyle(
                         color: Color(0xFF6CAEED),
                         fontSize: 14,

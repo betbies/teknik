@@ -322,7 +322,7 @@ class _SignupPageState extends State<SignupPage> {
                                 builder: (context) => const LoginPage()),
                           );
                         },
-                        child: const Text('Giriş Yapın'),
+                        child: const Text('Giriş Yapın.'),
                       ),
                     ],
                   ),
