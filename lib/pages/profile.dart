@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
+
+  Future<Map<String, dynamic>> _getUserData() async {
+    User? user = FirebaseAuth.instance.currentUser; // Şu anki kullanıcıyı al
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get(); // Kullanıcı verilerini Firestore'dan çek
+      return userDoc.data() as Map<String, dynamic>;
+    }
+    return {};
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,82 +31,101 @@ class ProfilePage extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20.0),
-                decoration: BoxDecoration(
-                  color:
-                      const Color(0xFFDDEEFA), // Daha hafif bir arka plan rengi
-                  borderRadius:
-                      BorderRadius.circular(30.0), // Daha yuvarlak köşeler
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF181A18)
-                          .withOpacity(0.2), // Gölgede tema rengi
-                      blurRadius: 12.0,
-                      offset: const Offset(0, 6),
+          child: FutureBuilder<Map<String, dynamic>>(
+            future: _getUserData(), // Kullanıcı verilerini çek
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                    child: CircularProgressIndicator()); // Veriler yükleniyor
+              } else if (snapshot.hasError) {
+                return Center(
+                    child: Text('Error: ${snapshot.error}')); // Hata durumu
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                    child:
+                        Text('No user data found.')); // Kullanıcı verisi yoksa
+              }
+
+              final userData = snapshot.data!;
+
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      color: const Color(
+                          0xFFDDEEFA), // Daha hafif bir arka plan rengi
+                      borderRadius:
+                          BorderRadius.circular(30.0), // Daha yuvarlak köşeler
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF181A18)
+                              .withOpacity(0.2), // Gölgede tema rengi
+                          blurRadius: 12.0,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    const CircleAvatar(
-                      radius: 60,
-                      backgroundColor: Color(0xFF89CFF0), // Tema mavi renk
-                      child: Icon(
-                        Icons.person,
-                        size: 80,
-                        color: Colors.white,
-                      ),
+                    child: Column(
+                      children: [
+                        const CircleAvatar(
+                          radius: 60,
+                          backgroundColor: Color(0xFF89CFF0), // Tema mavi renk
+                          child: Icon(
+                            Icons.person,
+                            size: 80,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          userData['name'] ?? '', // Kullanıcı adı
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF181A18),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          userData['email'] ?? '', // Kullanıcı e-posta
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        _buildInfoTile(
+                          icon: Icons.phone,
+                          title: 'Telefon',
+                          value: userData['phone'] ?? '', // Telefon numarası
+                        ),
+                        const SizedBox(height: 16),
+                        _buildInfoTile(
+                          icon: Icons.location_on,
+                          title: 'Adres',
+                          value: userData['address'] ?? '', // Adres
+                        ),
+                        const SizedBox(height: 16),
+                        _buildInfoTile(
+                          icon: Icons.date_range,
+                          title: 'Doğum Tarihi',
+                          value: userData['dob'] ?? '', // Doğum tarihi
+                        ),
+                        const SizedBox(height: 16),
+                        _buildInfoTile(
+                          icon: Icons.work,
+                          title: 'Meslek',
+                          value: userData['occupation'] ?? '', // Meslek
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'TUI HOTELS',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF181A18),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'tui@example.com',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    _buildInfoTile(
-                      icon: Icons.phone,
-                      title: 'Telefon',
-                      value: '+1 234 567 890',
-                    ),
-                    const SizedBox(height: 16),
-                    _buildInfoTile(
-                      icon: Icons.location_on,
-                      title: 'Adres',
-                      value: 'AQI PEGASOS HOTELS',
-                    ),
-                    const SizedBox(height: 16),
-                    _buildInfoTile(
-                      icon: Icons.date_range,
-                      title: 'Doğum Tarihi',
-                      value: '1 Ocak 1990',
-                    ),
-                    const SizedBox(height: 16),
-                    _buildInfoTile(
-                      icon: Icons.work,
-                      title: 'Meslek',
-                      value: 'Elektrikçi',
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
