@@ -18,6 +18,9 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  String? _selectedAddress;
+  String? _selectedOccupation;
+
   Future<void> _registerUser() async {
     try {
       UserCredential userCredential =
@@ -26,20 +29,22 @@ class _SignupPageState extends State<SignupPage> {
         password: _passwordController.text.trim(),
       );
 
-      // Save user details to Firestore
+      // Kullanıcı bilgilerini Firestore'a kaydet
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
+        'address': _selectedAddress,
+        'occupation': _selectedOccupation,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      // Optionally navigate to another page or show a success message
+      // Kayıt başarılı olunca giriş sayfasına yönlendir
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     } catch (e) {
-      // Handle error (e.g., show a message)
+      // Hata durumunda mesaj göster
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
@@ -49,10 +54,10 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFCFBF5), // Arka plan rengi
+      backgroundColor: const Color(0xFFFCFBF5),
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Geri tuşunu kaldırır
-        backgroundColor: const Color(0xFF6CAEED), // AppBar rengi
+        automaticallyImplyLeading: false,
+        backgroundColor: const Color(0xFF6CAEED),
         title:
             const Text('Sign Up', style: TextStyle(color: Color(0xFFFBFAF5))),
         centerTitle: true,
@@ -133,6 +138,74 @@ class _SignupPageState extends State<SignupPage> {
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12)),
                         borderSide: BorderSide(color: Color(0xFFDDEEFA)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Adres Seçimi DropdownButton
+                  DropdownButtonFormField<String>(
+                    value: _selectedAddress,
+                    hint: const Text('Select Address'),
+                    items: ['RESORT', 'ROYAL', 'CLUB', 'YÖNETİM']
+                        .map((address) => DropdownMenuItem<String>(
+                              value: address,
+                              child: Text(address),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedAddress = value;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                        borderSide: BorderSide(color: Color(0xFFDDEEFA)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                        borderSide: BorderSide(color: Color(0xFF6CAEED)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Meslek Seçimi DropdownButton
+                  DropdownButtonFormField<String>(
+                    value: _selectedOccupation,
+                    hint: const Text('Select Occupation'),
+                    items: [
+                      'ELEKTRİKÇİ',
+                      'TESİSATÇI',
+                      'BOYACI',
+                      'MARANGOZ',
+                      'VARDİYA AMİRİ',
+                      'ŞEF',
+                      'ASİSTAN'
+                    ]
+                        .map((occupation) => DropdownMenuItem<String>(
+                              value: occupation,
+                              child: Text(occupation),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedOccupation = value;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                        borderSide: BorderSide(color: Color(0xFFDDEEFA)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                        borderSide: BorderSide(color: Color(0xFF6CAEED)),
                       ),
                     ),
                   ),
