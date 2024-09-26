@@ -1,9 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth'u ekleyin
 import 'signup.dart'; // SignupPage'i içe aktar
 import '../main.dart'; // HomePage'i içe aktar
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  String _errorMessage = '';
+
+  Future<void> _login() async {
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      // Giriş başarılıysa ana sayfaya yönlendir
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message ?? 'An error occurred. Please try again.';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +67,7 @@ class LoginPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   TextField(
+                    controller: _emailController,
                     decoration: InputDecoration(
                       labelText: 'Email',
                       labelStyle: const TextStyle(color: Color(0xFF181A18)),
@@ -57,6 +87,7 @@ class LoginPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   TextField(
+                    controller: _passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Password',
@@ -75,18 +106,17 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  if (_errorMessage.isNotEmpty)
+                    Text(
+                      _errorMessage,
+                      style: const TextStyle(color: Colors.red),
+                    ),
                   const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Login işlemi sonrası ana sayfaya yönlendir
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const HomePage()),
-                        );
-                      },
+                      onPressed: _login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6CAEED),
                         padding: const EdgeInsets.symmetric(vertical: 15),
@@ -96,8 +126,10 @@ class LoginPage extends StatelessWidget {
                       ),
                       child: const Text(
                         'Login',
-                        style:
-                            TextStyle(color: Color(0xFFFBFAF5), fontSize: 16),
+                        style: TextStyle(
+                          color: Color(0xFFFBFAF5),
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
