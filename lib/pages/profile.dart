@@ -24,6 +24,9 @@ class ProfilePage extends StatelessWidget {
     final QuerySnapshot usersSnapshot =
         await FirebaseFirestore.instance.collection('users').get();
 
+    // Kullanıcı adlarını tutacak bir liste oluştur
+    List<String> userNames = [];
+
     for (var userDoc in usersSnapshot.docs) {
       final userData = userDoc.data() as Map<String, dynamic>;
       String address = userData['address'] ?? '';
@@ -31,11 +34,21 @@ class ProfilePage extends StatelessWidget {
 
       String team = _getTeamBasedOnAddress(address);
 
+      // Kullanıcı adını listeye ekle
+      userNames.add(userName);
+
       // Firestore'daki 'teams' koleksiyonunda ilgili ekibe kullanıcıyı ekle
       await FirebaseFirestore.instance.collection('teams').doc(team).update({
         'members': FieldValue.arrayUnion([userName]),
       });
     }
+
+    // Kullanıcı adlarını alfabetik sıraya göre sırala
+    userNames.sort();
+
+    // Sıralanmış kullanıcı adlarını istediğiniz gibi kullanabilirsiniz.
+    // Örneğin, kullanıcı adlarını bir liste olarak döndürebilirsiniz.
+    print("Sıralanmış Kullanıcı Adları: $userNames");
   }
 
   // Adrese göre takım belirleme fonksiyonu

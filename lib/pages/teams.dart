@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase Authentication eklendi
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TeamsPage extends StatelessWidget {
   const TeamsPage({super.key});
@@ -31,6 +31,9 @@ class TeamsPage extends StatelessWidget {
               String teamName = teams[index].id;
               List<String> members =
                   List<String>.from(teamData['members'] ?? []);
+
+              // Kullanıcı adlarını alfabetik sıraya göre sırala
+              members.sort();
 
               return Column(
                 children: [
