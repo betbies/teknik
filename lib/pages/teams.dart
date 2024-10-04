@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Firebase Authentication eklendi
 
 class TeamsPage extends StatelessWidget {
   const TeamsPage({super.key});
@@ -7,27 +9,38 @@ class TeamsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Geri tuşunu kaldırır
-        title: const Text('Ekipler'), // Üst bar başlığı
+        automaticallyImplyLeading: false,
+        title: const Text('Ekipler'),
         centerTitle: true,
-        backgroundColor: const Color(0xFFFCFBF5), // İstediğiniz renk
+        backgroundColor: const Color(0xFFFCFBF5),
       ),
       backgroundColor: const Color(0xFFFCFBF5),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildTeamTile(
-              context, 'Resort Teknik Servis Ekibi', ['Üye 1', 'Üye 2']),
-          const SizedBox(height: 16),
-          _buildTeamTile(
-              context, 'Royal Teknik Servis Ekibi', ['Üye 1', 'Üye 2']),
-          const SizedBox(height: 16),
-          _buildTeamTile(
-              context, 'Club Teknik Servis Ekibi', ['Üye 1', 'Üye 2']),
-          const SizedBox(height: 16),
-          _buildTeamTile(context, 'Yönetim Ekibi',
-              ['Üye 1', 'Üye 2']), // Yönetim Ekibi eklendi
-        ],
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('teams').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          var teams = snapshot.data!.docs;
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: teams.length,
+            itemBuilder: (context, index) {
+              var teamData = teams[index].data() as Map<String, dynamic>;
+              String teamName = teams[index].id;
+              List<String> members =
+                  List<String>.from(teamData['members'] ?? []);
+
+              return Column(
+                children: [
+                  _buildTeamTile(context, teamName, members),
+                  const SizedBox(height: 16),
+                ],
+              );
+            },
+          );
+        },
       ),
     );
   }
@@ -65,7 +78,7 @@ class TeamsPage extends StatelessWidget {
           ),
           children: members
               .map((member) => ListTile(
-                    leading: const Icon(Icons.person), // Profil resmi ikonu
+                    leading: const Icon(Icons.person),
                     title: Text(
                       member,
                       style: const TextStyle(color: Colors.black54),
@@ -75,5 +88,38 @@ class TeamsPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Tüm kullanıcıları ekiplere ekleme fonksiyonu
+  Future<void> _addAllUsersToTeams() async {
+    final usersSnapshot =
+        await FirebaseFirestore.instance.collection('users').get();
+
+    for (var userDoc in usersSnapshot.docs) {
+      final userData = userDoc.data();
+      final String address = userData['address'] ?? '';
+      final String userName = userData['name'] ?? '';
+
+      final team = _getTeamBasedOnAddress(address);
+
+      // Kullanıcıyı ilgili ekibe ekle
+      await FirebaseFirestore.instance.collection('teams').doc(team).update({
+        'members': FieldValue.arrayUnion([userName]),
+      });
+    }
+  }
+
+  String _getTeamBasedOnAddress(String address) {
+    if (address == 'AQI Pegasos Resort Hotel') {
+      return 'Resort Teknik Servis Ekibi';
+    } else if (address == 'AQI Pegasos Royal Hotel') {
+      return 'Royal Teknik Servis Ekibi';
+    } else if (address == 'AQI Pegasos Club Hotel') {
+      return 'Club Teknik Servis Ekibi';
+    } else if (address == 'TUI') {
+      return 'Yönetim Ekibi';
+    } else {
+      return 'Diğer'; // Adres tanımlanmadıysa genel bir ekip
+    }
   }
 }

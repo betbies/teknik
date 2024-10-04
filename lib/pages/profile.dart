@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore eklendi
+import 'package:firebase_auth/firebase_auth.dart'; // Firebase Authentication eklendi
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
+  // Kullanıcı verilerini Firestore'dan alma fonksiyonu
   Future<Map<String, dynamic>> _getUserData() async {
     User? user = FirebaseAuth.instance.currentUser; // Şu anki kullanıcıyı al
     if (user != null) {
@@ -15,6 +16,41 @@ class ProfilePage extends StatelessWidget {
       return userDoc.data() as Map<String, dynamic>;
     }
     return {};
+  }
+
+  // Adrese göre ekibe kullanıcıyı ekleme fonksiyonu
+  Future<void> _addUserToTeams() async {
+    // Kullanıcı verilerini al
+    final QuerySnapshot usersSnapshot =
+        await FirebaseFirestore.instance.collection('users').get();
+
+    for (var userDoc in usersSnapshot.docs) {
+      final userData = userDoc.data() as Map<String, dynamic>;
+      String address = userData['address'] ?? '';
+      String userName = userData['name'] ?? '';
+
+      String team = _getTeamBasedOnAddress(address);
+
+      // Firestore'daki 'teams' koleksiyonunda ilgili ekibe kullanıcıyı ekle
+      await FirebaseFirestore.instance.collection('teams').doc(team).update({
+        'members': FieldValue.arrayUnion([userName]),
+      });
+    }
+  }
+
+  // Adrese göre takım belirleme fonksiyonu
+  String _getTeamBasedOnAddress(String address) {
+    if (address == 'AQI Pegasos Resort Hotel') {
+      return 'Resort Teknik Servis Ekibi';
+    } else if (address == 'AQI Pegasos Royal Hotel') {
+      return 'Royal Teknik Servis Ekibi';
+    } else if (address == 'AQI Pegasos Club Hotel') {
+      return 'Club Teknik Servis Ekibi';
+    } else if (address == 'TUI') {
+      return 'Yönetim Ekibi';
+    } else {
+      return 'Diğer'; // Adres tanımlanmadıysa genel bir ekip
+    }
   }
 
   @override
@@ -47,6 +83,9 @@ class ProfilePage extends StatelessWidget {
               }
 
               final userData = snapshot.data!;
+
+              // Tüm kullanıcıları ekiplere ekleme işlemi
+              _addUserToTeams();
 
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,

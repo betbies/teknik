@@ -53,7 +53,7 @@ class _SignupPageState extends State<SignupPage> {
 
       // Kayıt başarılı olunca bildirim göster
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kayıt başarılı!')),
+        const SnackBar(content: Text('Kayıt başarılı!')),
       );
 
       // Kayıt başarılı olunca giriş sayfasına yönlendir
@@ -288,6 +288,14 @@ class _SignupPageState extends State<SignupPage> {
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: _registerUser,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(
+                          0xFF6CAEED), // primary yerine backgroundColor
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
                     child: _isRegistering
                         ? const CircularProgressIndicator(
                             valueColor:
@@ -299,14 +307,6 @@ class _SignupPageState extends State<SignupPage> {
                                 color:
                                     Colors.white), // Yazı rengini beyaz yapıldı
                           ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(
-                          0xFF6CAEED), // primary yerine backgroundColor
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                    ),
                   ),
 
                   const SizedBox(height: 16),
