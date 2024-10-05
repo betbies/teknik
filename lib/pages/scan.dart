@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; // Google Fonts paketini ekliyoruz
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ScanPage extends StatefulWidget {
   const ScanPage({super.key});
@@ -11,27 +13,48 @@ class ScanPage extends StatefulWidget {
 
 class _ScanPageState extends State<ScanPage> {
   final String _expectedQRCodeContent =
-      'https://www.tthotels.com/en/hotel/aqi-pegasos-resort/b/isitmakazani1'; // Buraya gerçek QR kod içeriğini ekleyin
-  bool _popupShown =
-      false; // Pop-up'ın gösterilip gösterilmediğini takip eden değişken
+      'https://www.tthotels.com/en/hotel/aqi-pegasos-resort/b/isitmakazani1';
+  bool _popupShown = false;
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Kullanıcı verilerini Firestore'dan alma fonksiyonu
+  Future<Map<String, dynamic>> _getUserData() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(user.uid).get();
+      return userDoc.data() as Map<String, dynamic>;
+    }
+    return {};
+  }
+
+  // Timestamp ile veri ekleme fonksiyonu
+  Future<void> _addCheckedEntry(String userName) async {
+    final now = Timestamp.now(); // Firestore Timestamp formatı kullanılıyor
+
+    // 'checked' koleksiyonuna yeni bir belge ekleyin
+    await _firestore.collection('checked').add({
+      'user_name': userName,
+      'timestamp': now, // Timestamp olarak saklanacak
+    });
+  }
 
   void _showErrorPopup(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white
-              .withOpacity(0.5), // Arka plan rengini %50 şeffaf beyaz yapıyoruz
-          contentPadding:
-              EdgeInsets.zero, // İçeriğin etrafındaki boşlukları sıfırla
-          actionsPadding: const EdgeInsets.only(
-              bottom: 4), // Alt boşluk oranını azaltıyoruz
+          backgroundColor: Colors.white.withOpacity(0.5),
+          contentPadding: EdgeInsets.zero,
+          actionsPadding: const EdgeInsets.only(bottom: 4),
           content: const SizedBox(
-            width: 200, // Bu genişliği ihtiyaca göre ayarlayabilirsiniz
-            height: 150, // Bu yüksekliği ihtiyaca göre ayarlayabilirsiniz
+            width: 200,
+            height: 150,
             child: Center(
               child: Text(
-                'Arızayı yazınız...', // Boş bir pop-up için basit bir metin
+                'Arızayı yazınız...',
                 style: TextStyle(fontSize: 18, color: Colors.black),
                 textAlign: TextAlign.center,
               ),
@@ -39,10 +62,7 @@ class _ScanPageState extends State<ScanPage> {
           ),
           actions: [
             TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor:
-                    Colors.black, // Kapat butonunun metin rengi siyah
-              ),
+              style: TextButton.styleFrom(foregroundColor: Colors.black),
               child: const Text('Kapat'),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -54,33 +74,31 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
 
-  void _showPopup(BuildContext context) {
+  void _showPopup(BuildContext context) async {
+    final userData = await _getUserData();
+    String userName = userData['name'] ?? 'Unknown';
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white
-              .withOpacity(0.5), // Arka plan rengini %50 şeffaf beyaz yapıyoruz
-          contentPadding:
-              EdgeInsets.zero, // İçeriğin etrafındaki boşlukları sıfırla
-          actionsPadding: const EdgeInsets.only(
-              bottom: 4), // Alt boşluk oranını azaltıyoruz
+          backgroundColor: Colors.white.withOpacity(0.5),
+          contentPadding: EdgeInsets.zero,
+          actionsPadding: const EdgeInsets.only(bottom: 4),
           content: SizedBox(
-            width: MediaQuery.of(context).size.width -
-                32, // Kamera alanının genişliği
-            height: MediaQuery.of(context).size.height *
-                0.5, // Kamera alanının yüksekliği
+            width: MediaQuery.of(context).size.width - 32,
+            height: MediaQuery.of(context).size.height * 0.5,
             child: Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10), // Başlık kenar boşlukları
+                  padding: const EdgeInsets.all(10),
                   child: const Text(
                     'ISITMA KAZANI 1',
                     style: TextStyle(
-                      fontSize: 18, // Başlık font boyutu
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
-                    textAlign: TextAlign.center, // Başlığı ortala
+                    textAlign: TextAlign.center,
                   ),
                 ),
                 Expanded(
@@ -90,61 +108,52 @@ class _ScanPageState extends State<ScanPage> {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.all(10),
-                            shape:
-                                const BeveledRectangleBorder(), // Yuvarlamayı kaldırdık
-                            backgroundColor: Colors.red
-                                .withOpacity(0.5), // Arka plan kırmızı
-                            elevation: 0, // Gölgeyi kaldır
-                          ).copyWith(
-                            foregroundColor: WidgetStateProperty.all(
-                                Colors.black), // Buton metin rengi siyah
+                            shape: const BeveledRectangleBorder(),
+                            backgroundColor: Colors.red.withOpacity(0.5),
+                            elevation: 0,
                           ),
                           onPressed: () {
-                            Navigator.of(context).pop(); // İlk pop-up'ı kapat
-                            _showErrorPopup(context); // Yeni pop-up'ı aç
+                            Navigator.of(context).pop();
+                            _showErrorPopup(context);
                           },
                           child: Center(
                             child: Text(
                               'ARIZA BİLDİR',
                               style: GoogleFonts.tourney(
-                                fontSize: 26, // Daha büyük font boyutu
-                                fontWeight: FontWeight.w700, // Orta kalınlıkta
-                                color: Colors.black, // Yazı rengi siyah
+                                fontSize: 26,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
                               ),
-                              textAlign: TextAlign.center, // Metni ortala
+                              textAlign: TextAlign.center,
                             ),
                           ),
                         ),
                       ),
                       Container(
                         width: 2,
-                        color: Colors.black, // Siyah çizgi
+                        color: Colors.black,
                       ),
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.all(10),
-                            shape:
-                                const BeveledRectangleBorder(), // Yuvarlamayı kaldırdık
-                            backgroundColor: Colors.green
-                                .withOpacity(0.5), // Arka plan yeşil
-                            elevation: 0, // Gölgeyi kaldır
-                          ).copyWith(
-                            foregroundColor: WidgetStateProperty.all(
-                                Colors.black), // Buton metin rengi siyah
+                            shape: const BeveledRectangleBorder(),
+                            backgroundColor: Colors.green.withOpacity(0.5),
+                            elevation: 0,
                           ),
-                          onPressed: () {
-                            // Kontrol Edildi butonuna basıldığında artık hiçbir işlem yapmıyor
+                          onPressed: () async {
+                            await _addCheckedEntry(userName);
+                            Navigator.of(context).pop();
                           },
                           child: Center(
                             child: Text(
                               'KONTROL EDİLDİ',
                               style: GoogleFonts.tourney(
-                                fontSize: 26, // Daha büyük font boyutu
-                                fontWeight: FontWeight.w700, // Orta kalınlıkta
-                                color: Colors.black, // Yazı rengi siyah
+                                fontSize: 26,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
                               ),
-                              textAlign: TextAlign.center, // Metni ortala
+                              textAlign: TextAlign.center,
                             ),
                           ),
                         ),
@@ -157,16 +166,12 @@ class _ScanPageState extends State<ScanPage> {
           ),
           actions: [
             TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor:
-                    Colors.black, // Kapat butonunun metin rengi siyah
-              ),
+              style: TextButton.styleFrom(foregroundColor: Colors.black),
               child: const Text('Kapat'),
               onPressed: () {
                 Navigator.of(context).pop();
                 setState(() {
-                  _popupShown =
-                      false; // Pop-up kapatıldığında gösterim durumunu sıfırla
+                  _popupShown = false;
                 });
               },
             ),
@@ -180,20 +185,18 @@ class _ScanPageState extends State<ScanPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Geri tuşunu kaldırır
+        automaticallyImplyLeading: false,
         title: const Text('QR Kod Tarayıcı'),
         centerTitle: true,
       ),
       body: Center(
         child: Container(
-          padding: const EdgeInsets.all(
-              16.0), // Kamera çerçevesinin etrafındaki boşluk
+          padding: const EdgeInsets.all(16.0),
           decoration: const BoxDecoration(
             color: Colors.transparent,
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(
-                16.0), // Kamera çerçevesinin köşelerini yuvarlama
+            borderRadius: BorderRadius.circular(16.0),
             child: MobileScanner(
               onDetect: (BarcodeCapture barcodeCapture) {
                 final Barcode? barcode = barcodeCapture.barcodes.isNotEmpty
@@ -201,20 +204,16 @@ class _ScanPageState extends State<ScanPage> {
                     : null;
                 if (barcode != null) {
                   final String? scannedCode = barcode.rawValue;
-                  // Taranan kod ile manuel olarak belirttiğiniz kodu karşılaştırıyoruz
                   if (scannedCode != null &&
                       scannedCode.trim() == _expectedQRCodeContent) {
                     if (!_popupShown) {
-                      // Pop-up zaten gösterilmiyorsa
                       setState(() {
-                        _popupShown =
-                            true; // Pop-up'ı göstermek için durumu güncelle
+                        _popupShown = true;
                       });
                       _showPopup(context);
                     }
                   } else if (scannedCode != null) {
                     if (!_popupShown) {
-                      // Eşleşme yok, sadece "Eşleşme yok" mesajı gösteriliyor
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Eşleşme yok!'),
@@ -230,10 +229,4 @@ class _ScanPageState extends State<ScanPage> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(const MaterialApp(
-    home: ScanPage(),
-  ));
 }
