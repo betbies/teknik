@@ -12,10 +12,7 @@ class ScanPage extends StatefulWidget {
 }
 
 class _ScanPageState extends State<ScanPage> {
-  final String _expectedQRCodeContent =
-      'https://www.tthotels.com/en/hotel/aqi-pegasos-resort/b/isitmakazani1';
   bool _popupShown = false;
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -31,12 +28,13 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   // Timestamp ile veri ekleme fonksiyonu
-  Future<void> _addCheckedEntry(String userName) async {
+  Future<void> _addCheckedEntry(String userName, String machineName) async {
     final now = Timestamp.now(); // Firestore Timestamp formatı kullanılıyor
 
     // 'checked' koleksiyonuna yeni bir belge ekleyin
     await _firestore.collection('checked').add({
       'user_name': userName,
+      'machine_name': machineName,
       'timestamp': now, // Timestamp olarak saklanacak
     });
   }
@@ -74,7 +72,7 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
 
-  void _showPopup(BuildContext context) async {
+  void _showPopup(BuildContext context, String machineName) async {
     final userData = await _getUserData();
     String userName = userData['name'] ?? 'Unknown';
 
@@ -92,9 +90,9 @@ class _ScanPageState extends State<ScanPage> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
-                  child: const Text(
-                    'ISITMA KAZANI 1',
-                    style: TextStyle(
+                  child: Text(
+                    machineName,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -142,7 +140,7 @@ class _ScanPageState extends State<ScanPage> {
                             elevation: 0,
                           ),
                           onPressed: () async {
-                            await _addCheckedEntry(userName);
+                            await _addCheckedEntry(userName, machineName);
                             Navigator.of(context).pop();
                           },
                           child: Center(
@@ -181,6 +179,36 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
 
+  // QR kodu kontrol etme fonksiyonu
+  Future<void> _checkQRCode(String scannedCode) async {
+    // Makineleri Firestore'dan al
+    final snapshot =
+        await _firestore.collection('machines').doc('resort').get();
+    final machines = snapshot.data()?['machines'] as List<dynamic>?;
+
+    if (machines != null) {
+      for (var machine in machines) {
+        if (machine['qrCode'] == scannedCode) {
+          if (!_popupShown) {
+            setState(() {
+              _popupShown = true;
+            });
+            _showPopup(context, machine['machineName']);
+          }
+          return; // Eşleşme bulundu, döngüyü sonlandır
+        }
+      }
+      // Eşleşme yoksa
+      if (!_popupShown) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Eşleşme yok!'),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,22 +232,8 @@ class _ScanPageState extends State<ScanPage> {
                     : null;
                 if (barcode != null) {
                   final String? scannedCode = barcode.rawValue;
-                  if (scannedCode != null &&
-                      scannedCode.trim() == _expectedQRCodeContent) {
-                    if (!_popupShown) {
-                      setState(() {
-                        _popupShown = true;
-                      });
-                      _showPopup(context);
-                    }
-                  } else if (scannedCode != null) {
-                    if (!_popupShown) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Eşleşme yok!'),
-                        ),
-                      );
-                    }
+                  if (scannedCode != null) {
+                    _checkQRCode(scannedCode.trim()); // QR kodunu kontrol et
                   }
                 }
               },
