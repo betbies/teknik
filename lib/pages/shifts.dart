@@ -327,6 +327,8 @@ class _ShiftsPageState extends State<ShiftsPage> {
     String details = '';
     DateTime now = DateTime.now();
 
+    List<Map<String, dynamic>> shiftRecords = [];
+
     for (var record in checkedRecords) {
       DateTime timestamp = (record['timestamp'] as Timestamp).toDate();
       String machineName = record['machine_name'];
@@ -337,19 +339,37 @@ class _ShiftsPageState extends State<ShiftsPage> {
           timestamp.month == now.month &&
           timestamp.day == now.day) {
         if (shift == 'A' && timestamp.hour >= 8 && timestamp.hour < 16) {
-          details +=
-              "$machineName - $userName - ${timestamp.hour}:${timestamp.minute}\n";
+          shiftRecords.add({
+            'machineName': machineName,
+            'userName': userName,
+            'timestamp': timestamp
+          });
         } else if (shift == 'B' &&
             timestamp.hour >= 16 &&
             timestamp.hour < 24) {
-          details +=
-              "$machineName - $userName - ${timestamp.hour}:${timestamp.minute}\n";
+          shiftRecords.add({
+            'machineName': machineName,
+            'userName': userName,
+            'timestamp': timestamp
+          });
         } else if (shift == 'C' &&
             (timestamp.hour < 8 && timestamp.hour >= 0)) {
-          details +=
-              "$machineName - $userName - ${timestamp.hour}:${timestamp.minute}\n";
+          shiftRecords.add({
+            'machineName': machineName,
+            'userName': userName,
+            'timestamp': timestamp
+          });
         }
       }
+    }
+
+    // Kayıtları zaman damgalarına göre sıralama
+    shiftRecords.sort((a, b) => a['timestamp'].compareTo(b['timestamp']));
+
+    // Sıralanmış kayıtları detay metnine ekleme
+    for (var record in shiftRecords) {
+      details +=
+          "${record['machineName']} - ${record['userName']} - ${record['timestamp'].hour}:${record['timestamp'].minute}\n";
     }
 
     return details.isEmpty ? 'Henüz kontrol edilmedi.' : details.trim();
