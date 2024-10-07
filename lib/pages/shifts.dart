@@ -56,7 +56,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift C',
             Icons.nights_stay,
             Colors.deepPurpleAccent,
-            'Details about the night shift...',
+            _getShiftCheckDetails('C'), // Makine ve kullanıcı bilgilerini ekle
             false,
             0,
             currentHour,
@@ -68,9 +68,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift A',
             Icons.wb_sunny,
             Colors.orangeAccent,
-            'Details about the morning shift...\n' +
-                _getShiftCheckDetails(
-                    'A'), // Makine ve kullanıcı bilgilerini ekle
+            _getShiftCheckDetails('A'), // Makine ve kullanıcı bilgilerini ekle
             true,
             8,
             currentHour,
@@ -82,7 +80,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift B',
             Icons.cloud,
             Colors.blueAccent,
-            'Details about the evening shift...',
+            _getShiftCheckDetails('B'), // Makine ve kullanıcı bilgilerini ekle
             false,
             16,
             currentHour,
@@ -96,9 +94,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift A',
             Icons.wb_sunny,
             Colors.orangeAccent,
-            'Details about the morning shift...\n' +
-                _getShiftCheckDetails(
-                    'A'), // Makine ve kullanıcı bilgilerini ekle
+            _getShiftCheckDetails('A'), // Makine ve kullanıcı bilgilerini ekle
             false,
             8,
             currentHour,
@@ -110,9 +106,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift B',
             Icons.cloud,
             Colors.blueAccent,
-            'Details about the evening shift...\n' +
-                _getShiftCheckDetails(
-                    'B'), // Makine ve kullanıcı bilgilerini ekle
+            _getShiftCheckDetails('B'), // Makine ve kullanıcı bilgilerini ekle
             true,
             16,
             currentHour,
@@ -124,7 +118,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift C',
             Icons.nights_stay,
             Colors.deepPurpleAccent,
-            'Details about the night shift...',
+            _getShiftCheckDetails('C'), // Makine ve kullanıcı bilgilerini ekle
             false,
             0,
             currentHour,
@@ -138,9 +132,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift B',
             Icons.cloud,
             Colors.blueAccent,
-            'Details about the evening shift...\n' +
-                _getShiftCheckDetails(
-                    'B'), // Makine ve kullanıcı bilgilerini ekle
+            _getShiftCheckDetails('B'), // Makine ve kullanıcı bilgilerini ekle
             false,
             16,
             currentHour,
@@ -152,7 +144,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift C',
             Icons.nights_stay,
             Colors.deepPurpleAccent,
-            'Details about the night shift...',
+            _getShiftCheckDetails('C'), // Makine ve kullanıcı bilgilerini ekle
             true,
             0,
             currentHour,
@@ -164,9 +156,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift A',
             Icons.wb_sunny,
             Colors.orangeAccent,
-            'Details about the morning shift...\n' +
-                _getShiftCheckDetails(
-                    'A'), // Makine ve kullanıcı bilgilerini ekle
+            _getShiftCheckDetails('A'), // Makine ve kullanıcı bilgilerini ekle
             false,
             8,
             currentHour,
@@ -334,24 +324,34 @@ class _ShiftsPageState extends State<ShiftsPage> {
   }
 
   String _getShiftCheckDetails(String shift) {
-    // Kontrol kayıtlarını vardiyaya göre filtreleme
     String details = '';
+    DateTime now = DateTime.now();
+
     for (var record in checkedRecords) {
       DateTime timestamp = (record['timestamp'] as Timestamp).toDate();
       String machineName = record['machine_name'];
       String userName = record['user_name'];
 
-      if (shift == 'A' && timestamp.hour >= 8 && timestamp.hour < 16) {
-        details +=
-            "$machineName - $userName - ${timestamp.hour}:${timestamp.minute}\n";
-      } else if (shift == 'B' && timestamp.hour >= 16 && timestamp.hour < 24) {
-        details +=
-            "$machineName - $userName - ${timestamp.hour}:${timestamp.minute}\n";
-      } else if (shift == 'C' && (timestamp.hour < 8 || timestamp.hour >= 0)) {
-        details +=
-            "$machineName - $userName - ${timestamp.hour}:${timestamp.minute}\n";
+      // Aynı gün kontrol kayıtlarını al
+      if (timestamp.year == now.year &&
+          timestamp.month == now.month &&
+          timestamp.day == now.day) {
+        if (shift == 'A' && timestamp.hour >= 8 && timestamp.hour < 16) {
+          details +=
+              "$machineName - $userName - ${timestamp.hour}:${timestamp.minute}\n";
+        } else if (shift == 'B' &&
+            timestamp.hour >= 16 &&
+            timestamp.hour < 24) {
+          details +=
+              "$machineName - $userName - ${timestamp.hour}:${timestamp.minute}\n";
+        } else if (shift == 'C' &&
+            (timestamp.hour < 8 && timestamp.hour >= 0)) {
+          details +=
+              "$machineName - $userName - ${timestamp.hour}:${timestamp.minute}\n";
+        }
       }
     }
+
     return details.isEmpty ? 'Henüz kontrol edilmedi.' : details.trim();
   }
 
