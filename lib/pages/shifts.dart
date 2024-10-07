@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore'u kullanabilmek için ekliyoruz.
 
 class ShiftsPage extends StatefulWidget {
   const ShiftsPage({super.key});
@@ -12,12 +13,27 @@ class _ShiftsPageState extends State<ShiftsPage> {
   DateTime selectedDate = DateTime.now();
   late int day, month, year;
 
+  // Firestore'dan kontrol bilgilerini almak için bir liste
+  List<Map<String, dynamic>> checkedRecords = [];
+
   @override
   void initState() {
     super.initState();
     day = selectedDate.day;
     month = selectedDate.month;
     year = selectedDate.year;
+    fetchCheckedRecords(); // Kontrol kayıtlarını al
+  }
+
+  Future<void> fetchCheckedRecords() async {
+    // Firestore'dan verileri çekme
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('checked').get();
+    setState(() {
+      checkedRecords = snapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+    });
   }
 
   @override
@@ -52,7 +68,9 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift A',
             Icons.wb_sunny,
             Colors.orangeAccent,
-            'Details about the morning shift...',
+            'Details about the morning shift...\n' +
+                _getShiftCheckDetails(
+                    'A'), // Makine ve kullanıcı bilgilerini ekle
             true,
             8,
             currentHour,
@@ -78,7 +96,9 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift A',
             Icons.wb_sunny,
             Colors.orangeAccent,
-            'Details about the morning shift...',
+            'Details about the morning shift...\n' +
+                _getShiftCheckDetails(
+                    'A'), // Makine ve kullanıcı bilgilerini ekle
             false,
             8,
             currentHour,
@@ -90,7 +110,9 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift B',
             Icons.cloud,
             Colors.blueAccent,
-            'Details about the evening shift...',
+            'Details about the evening shift...\n' +
+                _getShiftCheckDetails(
+                    'B'), // Makine ve kullanıcı bilgilerini ekle
             true,
             16,
             currentHour,
@@ -116,7 +138,9 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift B',
             Icons.cloud,
             Colors.blueAccent,
-            'Details about the evening shift...',
+            'Details about the evening shift...\n' +
+                _getShiftCheckDetails(
+                    'B'), // Makine ve kullanıcı bilgilerini ekle
             false,
             16,
             currentHour,
@@ -140,7 +164,9 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift A',
             Icons.wb_sunny,
             Colors.orangeAccent,
-            'Details about the morning shift...',
+            'Details about the morning shift...\n' +
+                _getShiftCheckDetails(
+                    'A'), // Makine ve kullanıcı bilgilerini ekle
             false,
             8,
             currentHour,
@@ -305,6 +331,28 @@ class _ShiftsPageState extends State<ShiftsPage> {
         ],
       ),
     );
+  }
+
+  String _getShiftCheckDetails(String shift) {
+    // Kontrol kayıtlarını vardiyaya göre filtreleme
+    String details = '';
+    for (var record in checkedRecords) {
+      DateTime timestamp = (record['timestamp'] as Timestamp).toDate();
+      String machineName = record['machine_name'];
+      String userName = record['user_name'];
+
+      if (shift == 'A' && timestamp.hour >= 8 && timestamp.hour < 16) {
+        details +=
+            "$machineName - $userName - ${timestamp.hour}:${timestamp.minute}\n";
+      } else if (shift == 'B' && timestamp.hour >= 16 && timestamp.hour < 24) {
+        details +=
+            "$machineName - $userName - ${timestamp.hour}:${timestamp.minute}\n";
+      } else if (shift == 'C' && (timestamp.hour < 8 || timestamp.hour >= 0)) {
+        details +=
+            "$machineName - $userName - ${timestamp.hour}:${timestamp.minute}\n";
+      }
+    }
+    return details.isEmpty ? 'Henüz kontrol edilmedi.' : details.trim();
   }
 
   String _hoursAgo(int shiftEndHour, int currentHour) {
