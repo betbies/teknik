@@ -369,7 +369,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
     // Sıralanmış kayıtları detay metnine ekleme
     for (var record in shiftRecords) {
       details +=
-          "${record['machineName']} - ${record['userName']} - ${record['timestamp'].hour}:${record['timestamp'].minute}\n";
+          "${record['machineName']} \n ${record['userName']} - ${record['timestamp'].hour}:${record['timestamp'].minute}\n";
     }
 
     return details.isEmpty ? 'Henüz kontrol edilmedi.' : details.trim();
@@ -497,7 +497,9 @@ class _ShiftsPageState extends State<ShiftsPage> {
           children: [
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text(content, style: const TextStyle(color: Colors.black)),
+              child: Text(content,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.black)),
             ),
           ],
         ),
