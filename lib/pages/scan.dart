@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async'; // Required for the debounce mechanism
 
 class ScanPage extends StatefulWidget {
   const ScanPage({super.key});
@@ -15,6 +16,8 @@ class _ScanPageState extends State<ScanPage> {
   bool _popupShown = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  bool _isScanning = true; // Control scan activity
+  Timer? _debounce; // Timer for debouncing
 
   // Kullanıcı verilerini Firestore'dan alma fonksiyonu
   Future<Map<String, dynamic>> _getUserData() async {
@@ -170,6 +173,7 @@ class _ScanPageState extends State<ScanPage> {
                 Navigator.of(context).pop();
                 setState(() {
                   _popupShown = false;
+                  _isScanning = true; // Enable scanning for the next QR code
                 });
               },
             ),
@@ -192,6 +196,7 @@ class _ScanPageState extends State<ScanPage> {
           if (!_popupShown) {
             setState(() {
               _popupShown = true;
+              _isScanning = false; // Pause scanning during popup display
             });
             _showPopup(context, machine['machineName']);
           }
@@ -207,6 +212,23 @@ class _ScanPageState extends State<ScanPage> {
         );
       }
     }
+  }
+
+  // Debounced scan function
+  void _onDetectBarcode(BarcodeCapture barcodeCapture) {
+    if (_debounce?.isActive ?? false)
+      _debounce!.cancel(); // Cancel previous debounce
+    _debounce = Timer(const Duration(milliseconds: 100), () {
+      final Barcode? barcode = barcodeCapture.barcodes.isNotEmpty
+          ? barcodeCapture.barcodes.first
+          : null;
+      if (barcode != null) {
+        final String? scannedCode = barcode.rawValue;
+        if (scannedCode != null && _isScanning) {
+          _checkQRCode(scannedCode.trim());
+        }
+      }
+    });
   }
 
   @override
@@ -226,17 +248,7 @@ class _ScanPageState extends State<ScanPage> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16.0),
             child: MobileScanner(
-              onDetect: (BarcodeCapture barcodeCapture) {
-                final Barcode? barcode = barcodeCapture.barcodes.isNotEmpty
-                    ? barcodeCapture.barcodes.first
-                    : null;
-                if (barcode != null) {
-                  final String? scannedCode = barcode.rawValue;
-                  if (scannedCode != null) {
-                    _checkQRCode(scannedCode.trim()); // QR kodunu kontrol et
-                  }
-                }
-              },
+              onDetect: _onDetectBarcode, // Debounced scan handler
             ),
           ),
         ),
