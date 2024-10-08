@@ -61,6 +61,7 @@ class MalfunctionPage extends StatelessWidget {
                 return Column(
                   children: [
                     _buildMalfunctionEntry(
+                      context, // context'i burada geçiyoruz
                       member: userName,
                       machine: machineName,
                       description: description,
@@ -79,7 +80,9 @@ class MalfunctionPage extends StatelessWidget {
     );
   }
 
-  Widget _buildMalfunctionEntry({
+  Widget _buildMalfunctionEntry(
+    BuildContext context, {
+    // context'i parametre olarak al
     required String member,
     required String machine,
     required String description,
@@ -88,7 +91,7 @@ class MalfunctionPage extends StatelessWidget {
   }) {
     final formattedDate = date;
     final random = Random();
-    final randomAngle = (random.nextDouble() - 0.5) * 0.2; // Rastgele açı
+    final randomAngle = (random.nextDouble() - 0.5) * 0.1; // Rastgele açı
 
     return Stack(
       children: [
@@ -99,14 +102,16 @@ class MalfunctionPage extends StatelessWidget {
           child: CustomPaint(
             painter: OldPaperPainter(),
             child: Container(
+              width: MediaQuery.of(context).size.width *
+                  0.85, // Sayfa genişliğini küçült
+              padding: const EdgeInsets.all(9.0), // İçerik için padding ekle
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1), // İçerik arka planı
-                // Kenarlık ve gölge kaldırıldı
+                color: Colors.brown.withOpacity(0.1), // İçerik arka planı
               ),
               child: Column(
                 children: [
                   const SizedBox(
-                      height: 10), // Yuvarlakları aşağı kaydırmak için
+                      height: 1), // Yuvarlakları aşağı kaydırmak için
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: List.generate(
@@ -122,7 +127,7 @@ class MalfunctionPage extends StatelessWidget {
                     ),
                   ),
                   ListTile(
-                    contentPadding: const EdgeInsets.all(16.0),
+                    contentPadding: EdgeInsets.zero, // Padding'i sıfırla
                     title: Row(
                       children: [
                         const Icon(
@@ -144,7 +149,6 @@ class MalfunctionPage extends StatelessWidget {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Makine adı burada eklendi
                         Text(
                           machine,
                           style: const TextStyle(
@@ -153,7 +157,6 @@ class MalfunctionPage extends StatelessWidget {
                             color: Colors.black54,
                           ),
                         ),
-                        // Arıza açıklaması burada eklendi
                         Text(
                           description,
                           style: const TextStyle(
@@ -195,7 +198,7 @@ class MalfunctionPage extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: 8, // Y ekseninde konum
+          top: 0, // Y ekseninde konum
           left: 0, // X ekseninde konum
           right: 0, // Eşit bir şekilde sağa da yerleştirmek için
           child: Center(
@@ -233,7 +236,7 @@ class OldPaperPainter extends CustomPainter {
     paintLine.color = Colors.brown.withOpacity(0.5);
     paintLine.strokeWidth = 1.5;
     double dashHeight = 4; // Kesik çizgilerin yüksekliği
-    for (double i = 0; i < size.height; i += 10) {
+    for (double i = 0; i < size.height; i += 9) {
       canvas.drawLine(Offset(0, i), Offset(0, i + dashHeight), paintLine);
     }
 
