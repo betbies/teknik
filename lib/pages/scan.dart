@@ -18,7 +18,7 @@ class _ScanPageState extends State<ScanPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool _isScanning = true; // Control scan activity
   Timer? _debounce; // Timer for debouncing
-  TextEditingController _errorController =
+  final TextEditingController _errorController =
       TextEditingController(); // Error input controller
 
   // Kullanıcı verilerini Firestore'dan alma fonksiyonu
@@ -82,7 +82,7 @@ class _ScanPageState extends State<ScanPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
                     controller: _errorController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: 'Arıza detaylarını girin',
                     ),
@@ -265,8 +265,9 @@ class _ScanPageState extends State<ScanPage> {
 
   // Debounced scan function
   void _onDetectBarcode(BarcodeCapture barcodeCapture) {
-    if (_debounce?.isActive ?? false)
+    if (_debounce?.isActive ?? false) {
       _debounce!.cancel(); // Cancel previous debounce
+    }
     _debounce = Timer(const Duration(milliseconds: 100), () {
       final Barcode? barcode = barcodeCapture.barcodes.isNotEmpty
           ? barcodeCapture.barcodes.first
