@@ -18,6 +18,8 @@ class _ScanPageState extends State<ScanPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool _isScanning = true; // Control scan activity
   Timer? _debounce; // Timer for debouncing
+  TextEditingController _errorController =
+      TextEditingController(); // Error input controller
 
   // Kullanıcı verilerini Firestore'dan alma fonksiyonu
   Future<Map<String, dynamic>> _getUserData() async {
@@ -28,6 +30,20 @@ class _ScanPageState extends State<ScanPage> {
       return userDoc.data() as Map<String, dynamic>;
     }
     return {};
+  }
+
+  // Error verisini Firestore'a kaydetme fonksiyonu
+  Future<void> _addErrorEntry(
+      String userName, String machineName, String error) async {
+    final now = Timestamp.now(); // Firestore Timestamp formatı kullanılıyor
+
+    // 'error' koleksiyonuna yeni bir belge ekleyin
+    await _firestore.collection('error').add({
+      'user_name': userName,
+      'machine_name': machineName,
+      'timestamp': now, // Timestamp olarak saklanacak
+      'error': error, // Arıza bilgisi ekleniyor
+    });
   }
 
   // Timestamp ile veri ekleme fonksiyonu
@@ -42,7 +58,7 @@ class _ScanPageState extends State<ScanPage> {
     });
   }
 
-  void _showErrorPopup(BuildContext context) {
+  void _showErrorPopup(BuildContext context, String machineName) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -50,15 +66,30 @@ class _ScanPageState extends State<ScanPage> {
           backgroundColor: Colors.white.withOpacity(0.5),
           contentPadding: EdgeInsets.zero,
           actionsPadding: const EdgeInsets.only(bottom: 4),
-          content: const SizedBox(
+          content: SizedBox(
             width: 200,
-            height: 150,
-            child: Center(
-              child: Text(
-                'Arızayı yazınız...',
-                style: TextStyle(fontSize: 18, color: Colors.black),
-                textAlign: TextAlign.center,
-              ),
+            height: 200,
+            child: Column(
+              children: [
+                const Center(
+                  child: Text(
+                    'Arızayı yazınız...',
+                    style: TextStyle(fontSize: 18, color: Colors.black),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: _errorController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Arıza detaylarını girin',
+                    ),
+                    maxLines: 3,
+                  ),
+                ),
+              ],
             ),
           ),
           actions: [
@@ -67,6 +98,23 @@ class _ScanPageState extends State<ScanPage> {
               child: const Text('Kapat'),
               onPressed: () {
                 Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.black),
+              child: const Text('Gönder'),
+              onPressed: () {
+                // Arıza bilgisini gönder
+                final error = _errorController.text;
+                if (error.isNotEmpty) {
+                  // Kullanıcı verilerini ve makine adını al
+                  _getUserData().then((userData) {
+                    String userName = userData['name'] ?? 'Unknown';
+                    // Arıza kaydını ekle
+                    _addErrorEntry(userName, machineName, error);
+                    Navigator.of(context).pop();
+                  });
+                }
               },
             ),
           ],
@@ -115,7 +163,7 @@ class _ScanPageState extends State<ScanPage> {
                           ),
                           onPressed: () {
                             Navigator.of(context).pop();
-                            _showErrorPopup(context);
+                            _showErrorPopup(context, machineName);
                           },
                           child: Center(
                             child: Text(
@@ -143,7 +191,8 @@ class _ScanPageState extends State<ScanPage> {
                             elevation: 0,
                           ),
                           onPressed: () async {
-                            await _addCheckedEntry(userName, machineName);
+                            await _addCheckedEntry(userName,
+                                machineName); // Hata bilgisi boş bırakıldı
                             Navigator.of(context).pop();
                           },
                           child: Center(
@@ -246,13 +295,20 @@ class _ScanPageState extends State<ScanPage> {
             color: Colors.transparent,
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(16.0),
+            borderRadius: BorderRadius.circular(16),
             child: MobileScanner(
-              onDetect: _onDetectBarcode, // Debounced scan handler
+              onDetect: _onDetectBarcode,
             ),
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel(); // Timer'ı temizle
+    _errorController.dispose(); // Error input controller'ı temizle
+    super.dispose();
   }
 }
