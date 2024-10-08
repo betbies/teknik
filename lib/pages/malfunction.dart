@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore ekledik
 import 'dart:math'; // Rastgele sayı üretmek için
 
 class MalfunctionPage extends StatelessWidget {
@@ -25,23 +26,54 @@ class MalfunctionPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         width: double.infinity,
         height: double.infinity,
-        child: ListView(
-          children: [
-            _buildMalfunctionEntry(
-              member: 'Üye 1',
-              description: 'Bugün cihaz açılmıyor, lütfen kontrol edin.',
-              date: '2024-08-25',
-              time: '14:30',
-            ),
-            const SizedBox(height: 20), // İki arıza girişi arasında boşluk
-            _buildMalfunctionEntry(
-              member: 'Üye 1',
-              description: 'Ekran yanıt vermiyor, yardım bekliyorum.',
-              date: '2024-08-24',
-              time: '09:15',
-            ),
-            const SizedBox(height: 20), // İki arıza girişi arasında boşluk
-          ],
+        child: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('error')
+              .orderBy('timestamp', descending: true) // Zaman sırasına göre
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            var malfunctionDocs = snapshot.data!.docs;
+
+            return ListView.builder(
+              itemCount: malfunctionDocs.length,
+              itemBuilder: (context, index) {
+                var malfunctionData =
+                    malfunctionDocs[index].data() as Map<String, dynamic>;
+
+                String userName = malfunctionData['user_name'] ?? 'Bilinmiyor';
+                String machineName =
+                    malfunctionData['machine_name'] ?? 'Bilinmiyor';
+                String description =
+                    malfunctionData['error'] ?? 'Bilinmeyen hata';
+                Timestamp timestamp =
+                    malfunctionData['timestamp'] ?? Timestamp.now();
+
+                // Tarih ve saat formatlama
+                DateTime dateTime = timestamp.toDate();
+                String formattedDate =
+                    DateFormat('dd/MM/yyyy').format(dateTime);
+                String formattedTime = DateFormat('HH:mm').format(dateTime);
+
+                return Column(
+                  children: [
+                    _buildMalfunctionEntry(
+                      member: userName,
+                      machine: machineName,
+                      description: description,
+                      date: formattedDate,
+                      time: formattedTime,
+                    ),
+                    const SizedBox(
+                        height: 20), // İki arıza girişi arasında boşluk
+                  ],
+                );
+              },
+            );
+          },
         ),
       ),
     );
@@ -49,14 +81,14 @@ class MalfunctionPage extends StatelessWidget {
 
   Widget _buildMalfunctionEntry({
     required String member,
+    required String machine,
     required String description,
     required String date,
     required String time,
   }) {
-    final formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.parse(date));
+    final formattedDate = date;
     final random = Random();
-    final randomAngle =
-        (random.nextDouble() - 0.5) * 0.2; // -0.1 ile 0.1 arasında rastgele açı
+    final randomAngle = (random.nextDouble() - 0.5) * 0.2; // Rastgele açı
 
     return Stack(
       children: [
@@ -68,21 +100,13 @@ class MalfunctionPage extends StatelessWidget {
             painter: OldPaperPainter(),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white
-                    .withOpacity(0.1), // İçerik arka planı için hafif beyaz
-                borderRadius: BorderRadius.zero,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4.0,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                color: Colors.white.withOpacity(0.1), // İçerik arka planı
+                // Kenarlık ve gölge kaldırıldı
               ),
               child: Column(
                 children: [
                   const SizedBox(
-                      height: 10), // Yuvarlakları aşağıya kaydırmak için
+                      height: 10), // Yuvarlakları aşağı kaydırmak için
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: List.generate(
@@ -90,16 +114,9 @@ class MalfunctionPage extends StatelessWidget {
                       (index) => Container(
                         width: 15, // Yuvarlak boyutu
                         height: 15,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFFFFF), // Yuvarlak rengi
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFFFFFF), // Yuvarlak rengi
                           shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 3.0,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
                         ),
                       ),
                     ),
@@ -127,6 +144,16 @@ class MalfunctionPage extends StatelessWidget {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Makine adı burada eklendi
+                        Text(
+                          machine,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontStyle: FontStyle.italic,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        // Arıza açıklaması burada eklendi
                         Text(
                           description,
                           style: const TextStyle(
@@ -203,7 +230,6 @@ class OldPaperPainter extends CustomPainter {
       canvas.drawLine(Offset(0, i), Offset(size.width, i), paintLine);
     }
 
-    // Kesik çizgileri ekle
     paintLine.color = Colors.brown.withOpacity(0.5);
     paintLine.strokeWidth = 1.5;
     double dashHeight = 4; // Kesik çizgilerin yüksekliği
@@ -211,14 +237,10 @@ class OldPaperPainter extends CustomPainter {
       canvas.drawLine(Offset(0, i), Offset(0, i + dashHeight), paintLine);
     }
 
-    // Sayfanın kenarlarına hafif gölgeler
     final paintEdges = Paint()
       ..color = Colors.brown.withOpacity(0.2)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10.0);
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      paintEdges,
-    );
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paintEdges);
   }
 
   @override
