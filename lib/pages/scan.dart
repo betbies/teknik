@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:async'; // Required for the debounce mechanism
+import 'dart:async'; // Debounce mekanizması için gerekli
 
 class ScanPage extends StatefulWidget {
   const ScanPage({super.key});
@@ -16,10 +16,9 @@ class _ScanPageState extends State<ScanPage> {
   bool _popupShown = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  bool _isScanning = true; // Control scan activity
-  Timer? _debounce; // Timer for debouncing
   final TextEditingController _errorController =
-      TextEditingController(); // Error input controller
+      TextEditingController(); // Hata girişi için kontrolör
+  Timer? _debounce; // Debounce mekanizması için zamanlayıcı
 
   // Kullanıcı verilerini Firestore'dan alma fonksiyonu
   Future<Map<String, dynamic>> _getUserData() async {
@@ -32,29 +31,25 @@ class _ScanPageState extends State<ScanPage> {
     return {};
   }
 
-  // Error verisini Firestore'a kaydetme fonksiyonu
+  // Hata verisini Firestore'a kaydetme fonksiyonu
   Future<void> _addErrorEntry(
       String userName, String machineName, String error) async {
-    final now = Timestamp.now(); // Firestore Timestamp formatı kullanılıyor
-
-    // 'error' koleksiyonuna yeni bir belge ekleyin
+    final now = Timestamp.now();
     await _firestore.collection('error').add({
       'user_name': userName,
       'machine_name': machineName,
-      'timestamp': now, // Timestamp olarak saklanacak
-      'error': error, // Arıza bilgisi ekleniyor
+      'timestamp': now,
+      'error': error,
     });
   }
 
-  // Timestamp ile veri ekleme fonksiyonu
+  // Kontrol verisini Firestore'a kaydetme fonksiyonu
   Future<void> _addCheckedEntry(String userName, String machineName) async {
-    final now = Timestamp.now(); // Firestore Timestamp formatı kullanılıyor
-
-    // 'checked' koleksiyonuna yeni bir belge ekleyin
+    final now = Timestamp.now();
     await _firestore.collection('checked').add({
       'user_name': userName,
       'machine_name': machineName,
-      'timestamp': now, // Timestamp olarak saklanacak
+      'timestamp': now,
     });
   }
 
@@ -63,7 +58,7 @@ class _ScanPageState extends State<ScanPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white.withOpacity(0.5),
+          backgroundColor: Colors.white.withOpacity(0.9),
           contentPadding: EdgeInsets.zero,
           actionsPadding: const EdgeInsets.only(bottom: 4),
           content: SizedBox(
@@ -104,13 +99,10 @@ class _ScanPageState extends State<ScanPage> {
               style: TextButton.styleFrom(foregroundColor: Colors.black),
               child: const Text('Gönder'),
               onPressed: () {
-                // Arıza bilgisini gönder
                 final error = _errorController.text;
                 if (error.isNotEmpty) {
-                  // Kullanıcı verilerini ve makine adını al
                   _getUserData().then((userData) {
                     String userName = userData['name'] ?? 'Unknown';
-                    // Arıza kaydını ekle
                     _addErrorEntry(userName, machineName, error);
                     Navigator.of(context).pop();
                   });
@@ -120,7 +112,13 @@ class _ScanPageState extends State<ScanPage> {
           ],
         );
       },
-    );
+    ).then((_) {
+      // Pop-up kapandığında çalışacak kısım
+      setState(() {
+        _popupShown = false;
+      });
+    });
+    _popupShown = true;
   }
 
   void _showPopup(BuildContext context, String machineName) async {
@@ -129,9 +127,10 @@ class _ScanPageState extends State<ScanPage> {
 
     showDialog(
       context: context,
+      barrierDismissible: true, // Boş alana tıklayınca kapansın
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white.withOpacity(0.5),
+          backgroundColor: Colors.white.withOpacity(0.9),
           contentPadding: EdgeInsets.zero,
           actionsPadding: const EdgeInsets.only(bottom: 4),
           content: SizedBox(
@@ -191,8 +190,7 @@ class _ScanPageState extends State<ScanPage> {
                             elevation: 0,
                           ),
                           onPressed: () async {
-                            await _addCheckedEntry(userName,
-                                machineName); // Hata bilgisi boş bırakıldı
+                            await _addCheckedEntry(userName, machineName);
                             Navigator.of(context).pop();
                           },
                           child: Center(
@@ -220,21 +218,23 @@ class _ScanPageState extends State<ScanPage> {
               child: const Text('Kapat'),
               onPressed: () {
                 Navigator.of(context).pop();
-                setState(() {
-                  _popupShown = false;
-                  _isScanning = true; // Enable scanning for the next QR code
-                });
               },
             ),
           ],
         );
       },
-    );
+    ).then((_) {
+      // Pop-up kapandığında çalışacak kısım
+      setState(() {
+        _popupShown = false;
+      });
+    });
+
+    // Pop-up açık olduğunda QR kod okumayı durdur
+    _popupShown = true;
   }
 
-  // QR kodu kontrol etme fonksiyonu
   Future<void> _checkQRCode(String scannedCode) async {
-    // Makineleri Firestore'dan al
     final snapshot =
         await _firestore.collection('machines').doc('resort').get();
     final machines = snapshot.data()?['machines'] as List<dynamic>?;
@@ -243,16 +243,12 @@ class _ScanPageState extends State<ScanPage> {
       for (var machine in machines) {
         if (machine['qrCode'] == scannedCode) {
           if (!_popupShown) {
-            setState(() {
-              _popupShown = true;
-              _isScanning = false; // Pause scanning during popup display
-            });
             _showPopup(context, machine['machineName']);
           }
-          return; // Eşleşme bulundu, döngüyü sonlandır
+          return;
         }
       }
-      // Eşleşme yoksa
+
       if (!_popupShown) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -263,10 +259,9 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
-  // Debounced scan function
   void _onDetectBarcode(BarcodeCapture barcodeCapture) {
     if (_debounce?.isActive ?? false) {
-      _debounce!.cancel(); // Cancel previous debounce
+      _debounce!.cancel();
     }
     _debounce = Timer(const Duration(milliseconds: 100), () {
       final Barcode? barcode = barcodeCapture.barcodes.isNotEmpty
@@ -274,7 +269,7 @@ class _ScanPageState extends State<ScanPage> {
           : null;
       if (barcode != null) {
         final String? scannedCode = barcode.rawValue;
-        if (scannedCode != null && _isScanning) {
+        if (scannedCode != null && !_popupShown) {
           _checkQRCode(scannedCode.trim());
         }
       }
@@ -308,8 +303,8 @@ class _ScanPageState extends State<ScanPage> {
 
   @override
   void dispose() {
-    _debounce?.cancel(); // Timer'ı temizle
-    _errorController.dispose(); // Error input controller'ı temizle
+    _debounce?.cancel();
+    _errorController.dispose();
     super.dispose();
   }
 }
