@@ -119,9 +119,16 @@ class MalfunctionPage extends StatelessWidget {
                       (index) => Container(
                         width: 15, // Yuvarlak boyutu
                         height: 15,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFFFFFFF), // Yuvarlak rengi
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFFFFF), // Yuvarlak rengi
                           shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              offset: const Offset(2, 2),
+                              blurRadius: 5,
+                            ),
+                          ], // Yuvarlak gölgesi
                         ),
                       ),
                     ),
@@ -244,6 +251,13 @@ class OldPaperPainter extends CustomPainter {
       ..color = Colors.brown.withOpacity(0.2)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10.0);
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paintEdges);
+
+    // Sayfa altındaki gölgelendirme
+    final paintShadow = Paint()
+      ..color = Colors.black.withOpacity(0.1)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.0);
+    canvas.drawRect(
+        Rect.fromLTWH(0, size.height - 10, size.width, 10), paintShadow);
   }
 
   @override
