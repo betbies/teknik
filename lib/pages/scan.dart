@@ -291,7 +291,7 @@ class _ScanPageState extends State<ScanPage> {
             color: Colors.transparent,
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16), // Kenarları yuvarlak yap
             child: MobileScanner(
               onDetect: _onDetectBarcode,
             ),
