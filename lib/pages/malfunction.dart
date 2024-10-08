@@ -82,7 +82,6 @@ class MalfunctionPage extends StatelessWidget {
 
   Widget _buildMalfunctionEntry(
     BuildContext context, {
-    // context'i parametre olarak al
     required String member,
     required String machine,
     required String description,
@@ -91,7 +90,7 @@ class MalfunctionPage extends StatelessWidget {
   }) {
     final formattedDate = date;
     final random = Random();
-    final randomAngle = (random.nextDouble() - 0.5) * 0.1; // Rastgele açı
+    final randomAngle = (random.nextDouble() - 0.4) * 0.1; // Rastgele açı
 
     return Stack(
       children: [
@@ -156,20 +155,50 @@ class MalfunctionPage extends StatelessWidget {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          machine,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontStyle: FontStyle.italic,
-                            color: Colors.black54,
-                          ),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on, // Konum simgesi
+                              size: 16,
+                              color: Colors.black54,
+                            ),
+                            const SizedBox(
+                                width: 8), // Simge ile metin arasında boşluk
+                            Expanded(
+                              child: Text(
+                                machine,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontStyle: FontStyle.italic,
+                                  color: Colors.black54,
+                                ),
+                                maxLines:
+                                    2, // Maximum of 2 lines for machine name
+                                overflow:
+                                    TextOverflow.ellipsis, // Overflow behavior
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          description,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.black54,
-                          ),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.error, // Arıza simgesi
+                              size: 16,
+                              color: Colors.red, // Arıza simgesi rengi
+                            ),
+                            const SizedBox(
+                                width: 8), // Simge ile metin arasında boşluk
+                            Expanded(
+                              child: Text(
+                                description,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Row(
