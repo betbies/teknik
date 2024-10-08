@@ -90,7 +90,7 @@ class MalfunctionPage extends StatelessWidget {
   }) {
     final formattedDate = date;
     final random = Random();
-    final randomAngle = (random.nextDouble() - 0.4) * 0.1; // Rastgele açı
+    final randomAngle = (random.nextDouble() - 0.5) * 0.05; // Rastgele açı
 
     return Stack(
       children: [
