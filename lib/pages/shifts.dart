@@ -89,6 +89,9 @@ class _ShiftsPageState extends State<ShiftsPage> {
             "Akşam Vardiyası"),
       ];
     } else if (isShiftB) {
+      DateTime nextDay =
+          now.add(const Duration(days: 1)); // Sonraki günün tarihi
+
       shifts = [
         _buildShiftTile(
             'Shift A',
@@ -118,7 +121,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift C',
             Icons.nights_stay,
             Colors.deepPurpleAccent,
-            _getShiftCheckDetails('C'), // Makine ve kullanıcı bilgilerini ekle
+            _getShiftCheckDetails('C', nextDay), // Gece vardiyası için yeni gün
             false,
             0,
             currentHour,
@@ -323,9 +326,10 @@ class _ShiftsPageState extends State<ShiftsPage> {
     );
   }
 
-  String _getShiftCheckDetails(String shift) {
+  String _getShiftCheckDetails(String shift, [DateTime? specificDate]) {
     String details = '';
-    DateTime now = DateTime.now();
+    DateTime now = specificDate ??
+        DateTime.now(); // Eğer belirli bir tarih varsa onu kullan
 
     List<Map<String, dynamic>> shiftRecords = [];
 
@@ -334,7 +338,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
       String machineName = record['machine_name'];
       String userName = record['user_name'];
 
-      // Aynı gün kontrol kayıtlarını al
+      // Aynı gün veya belirli gün için kontrol kayıtlarını al
       if (timestamp.year == now.year &&
           timestamp.month == now.month &&
           timestamp.day == now.day) {
@@ -363,10 +367,8 @@ class _ShiftsPageState extends State<ShiftsPage> {
       }
     }
 
-    // Kayıtları zaman damgalarına göre sıralama
     shiftRecords.sort((a, b) => a['timestamp'].compareTo(b['timestamp']));
 
-    // Sıralanmış kayıtları detay metnine ekleme
     for (var record in shiftRecords) {
       details +=
           "${record['machineName']} \n ${record['userName']} - ${record['timestamp'].hour}:${record['timestamp'].minute}\n";
