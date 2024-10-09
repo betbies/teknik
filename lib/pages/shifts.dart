@@ -130,12 +130,16 @@ class _ShiftsPageState extends State<ShiftsPage> {
             "Gece Vardiyası"),
       ];
     } else {
+      DateTime previousDay =
+          now.subtract(const Duration(days: 1)); // Bir önceki günün tarihi
+
       shifts = [
         _buildShiftTile(
             'Shift B',
             Icons.cloud,
             Colors.blueAccent,
-            _getShiftCheckDetails('B'), // Makine ve kullanıcı bilgilerini ekle
+            _getShiftCheckDetails(
+                'B', previousDay), // Bir önceki günün vardiyası
             false,
             16,
             currentHour,
@@ -147,7 +151,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift C',
             Icons.nights_stay,
             Colors.deepPurpleAccent,
-            _getShiftCheckDetails('C'), // Makine ve kullanıcı bilgilerini ekle
+            _getShiftCheckDetails('C'), // Mevcut günün gece vardiyası
             true,
             0,
             currentHour,
@@ -159,7 +163,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
             'Shift A',
             Icons.wb_sunny,
             Colors.orangeAccent,
-            _getShiftCheckDetails('A'), // Makine ve kullanıcı bilgilerini ekle
+            _getShiftCheckDetails('A'), // Mevcut günün gündüz vardiyası
             false,
             8,
             currentHour,
@@ -369,9 +373,16 @@ class _ShiftsPageState extends State<ShiftsPage> {
 
     shiftRecords.sort((a, b) => a['timestamp'].compareTo(b['timestamp']));
 
-    for (var record in shiftRecords) {
+    for (var i = 0; i < shiftRecords.length; i++) {
+      var record = shiftRecords[i];
       details +=
-          "${record['machineName']} \n ${record['userName']} - ${record['timestamp'].hour}:${record['timestamp'].minute}\n";
+          "${record['machineName']} \n ${record['userName']} - ${record['timestamp'].hour.toString().padLeft(2, '0')}:${record['timestamp'].minute.toString().padLeft(2, '0')}\n";
+
+      // Kayıtlar arasında çizgi ekleme (son kayıttan sonra eklenmez)
+      if (i < shiftRecords.length - 1) {
+        details +=
+            "----------\n"; // Bu çizgi temsili. Asıl ekranda Divider kullanacağız.
+      }
     }
 
     return details.isEmpty ? 'Henüz kontrol edilmedi.' : details.trim();
