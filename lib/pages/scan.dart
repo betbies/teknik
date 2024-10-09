@@ -1,59 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:async'; // Debounce mekanizması için gerekli
 
 class ScanPage extends StatefulWidget {
-  const ScanPage({super.key});
-
   @override
   _ScanPageState createState() => _ScanPageState();
 }
 
 class _ScanPageState extends State<ScanPage> {
-  bool _popupShown = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final TextEditingController _errorController =
-      TextEditingController(); // Hata girişi için kontrolör
-  Timer? _debounce; // Debounce mekanizması için zamanlayıcı
-
-  // Kullanıcı verilerini Firestore'dan alma fonksiyonu
-  Future<Map<String, dynamic>> _getUserData() async {
-    User? user = _auth.currentUser;
-    if (user != null) {
-      DocumentSnapshot userDoc =
-          await _firestore.collection('users').doc(user.uid).get();
-      return userDoc.data() as Map<String, dynamic>;
-    }
-    return {};
-  }
-
-  // Hata verisini Firestore'a kaydetme fonksiyonu
-  Future<void> _addErrorEntry(
-      String userName, String machineName, String error) async {
-    final now = Timestamp.now();
-    await _firestore.collection('error').add({
-      'user_name': userName,
-      'machine_name': machineName,
-      'timestamp': now,
-      'error': error,
-    });
-  }
-
-  // Kontrol verisini Firestore'a kaydetme fonksiyonu
-  Future<void> _addCheckedEntry(String userName, String machineName) async {
-    final now = Timestamp.now();
-    await _firestore.collection('checked').add({
-      'user_name': userName,
-      'machine_name': machineName,
-      'timestamp': now,
-    });
-  }
+  final TextEditingController _errorController = TextEditingController();
+  bool _popupShown = false; // Pop-up gösterilip gösterilmediğini izleyen durum
 
   void _showErrorPopup(BuildContext context, String machineName) {
+    if (_popupShown) return; // Pop-up açıksa bu fonksiyonu durdur
+    _popupShown = true; // Pop-up gösterilmeye başlandığında durum güncelle
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -120,10 +83,12 @@ class _ScanPageState extends State<ScanPage> {
         );
       },
     );
-    _popupShown = true;
   }
 
   void _showPopup(BuildContext context, String machineName) async {
+    if (_popupShown) return; // Pop-up açıksa bu fonksiyonu durdur
+    _popupShown = true; // Pop-up gösterilmeye başlandığında durum güncelle
+
     final userData = await _getUserData();
     String userName = userData['name'] ?? 'Unknown';
 
@@ -234,12 +199,9 @@ class _ScanPageState extends State<ScanPage> {
         );
       },
     );
-
-    // Pop-up açık olduğunda QR kod okumayı durdur
-    _popupShown = true;
   }
 
-  Future<void> _checkQRCode(String scannedCode) async {
+  void _checkQRCode(String scannedCode) async {
     final snapshot =
         await _firestore.collection('machines').doc('resort').get();
     final machines = snapshot.data()?['machines'] as List<dynamic>?;
@@ -264,20 +226,30 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
-  void _onDetectBarcode(BarcodeCapture barcodeCapture) {
-    if (_debounce?.isActive ?? false) {
-      _debounce!.cancel();
-    }
-    _debounce = Timer(const Duration(milliseconds: 100), () {
-      final Barcode? barcode = barcodeCapture.barcodes.isNotEmpty
-          ? barcodeCapture.barcodes.first
-          : null;
-      if (barcode != null) {
-        final String? scannedCode = barcode.rawValue;
-        if (scannedCode != null && !_popupShown) {
-          _checkQRCode(scannedCode.trim());
-        }
-      }
+  Future<Map<String, dynamic>> _getUserData() async {
+    // Kullanıcı verilerini almak için yazılacak fonksiyon
+    // Örneğin:
+    // return await FirebaseFirestore.instance.collection('users').doc(userId).get().then((doc) => doc.data());
+    return {'name': 'Test User'}; // Test verisi
+  }
+
+  Future<void> _addCheckedEntry(String userName, String machineName) async {
+    // Kontrol kayıtlarını Firestore'a ekleme işlemi
+    await _firestore.collection('checked').add({
+      'user_name': userName,
+      'machine_name': machineName,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> _addErrorEntry(
+      String userName, String machineName, String error) async {
+    // Arıza kayıtlarını Firestore'a ekleme işlemi
+    await _firestore.collection('error').add({
+      'user_name': userName,
+      'machine_name': machineName,
+      'error': error,
+      'timestamp': FieldValue.serverTimestamp(),
     });
   }
 
@@ -285,24 +257,15 @@ class _ScanPageState extends State<ScanPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         title: const Text('QR Kod Tarayıcı'),
-        centerTitle: true,
       ),
-      body: Center(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: const BoxDecoration(
-            color: Colors.transparent,
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20.0),
-            child: MobileScanner(
-              onDetect: _onDetectBarcode,
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
+      body: MobileScanner(
+        onDetect: (capture) {
+          final List<Barcode> barcodes = capture.barcodes;
+          for (final Barcode barcode in barcodes) {
+            _checkQRCode(barcode.rawValue!);
+          }
+        },
       ),
     );
   }
