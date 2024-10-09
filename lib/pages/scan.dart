@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanPage extends StatefulWidget {
+  const ScanPage({super.key});
+
   @override
   _ScanPageState createState() => _ScanPageState();
 }
