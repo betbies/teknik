@@ -18,6 +18,7 @@ class _ScanPageState extends State<ScanPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _errorController = TextEditingController();
   Timer? _debounce;
+  bool _isScanningAllowed = true; // Yeni değişken
 
   Future<Map<String, dynamic>> _getUserData() async {
     User? user = _auth.currentUser;
@@ -270,8 +271,13 @@ class _ScanPageState extends State<ScanPage> {
           : null;
       if (barcode != null) {
         final String? scannedCode = barcode.rawValue;
-        if (scannedCode != null && !_popupShown) {
+        if (scannedCode != null && !_popupShown && _isScanningAllowed) {
           _checkQRCode(scannedCode.trim());
+          _isScanningAllowed = false; // Okuma iznini kapat
+          // 5 saniye bekle
+          Future.delayed(const Duration(seconds: 5), () {
+            _isScanningAllowed = true; // Okuma iznini aç
+          });
         }
       }
     });
