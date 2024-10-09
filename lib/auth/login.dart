@@ -15,8 +15,14 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
+  bool _isLoading = false; // Butonun durumunu kontrol eden değişken
 
   Future<void> _login() async {
+    if (_isLoading) return; // Eğer işlem yapılıyorsa, fonksiyonu sonlandır
+    setState(() {
+      _isLoading = true; // Butonu devre dışı bırak
+    });
+
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: _emailController.text,
@@ -30,6 +36,10 @@ class _LoginPageState extends State<LoginPage> {
     } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = e.message ?? 'Bir hata oluştu. Lütfen tekrar deneyin.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false; // Butonu tekrar etkinleştir
       });
     }
   }
@@ -116,7 +126,8 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _login,
+                      onPressed:
+                          _isLoading ? null : _login, // Buton devre dışı bırak
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6CAEED),
                         padding: const EdgeInsets.symmetric(vertical: 15),
@@ -124,13 +135,15 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        'Giriş Yap',
-                        style: TextStyle(
-                          color: Color(0xFFFBFAF5),
-                          fontSize: 16,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator() // Yükleniyor göstergesi
+                          : const Text(
+                              'Giriş Yap',
+                              style: TextStyle(
+                                color: Color(0xFFFBFAF5),
+                                fontSize: 16,
+                              ),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 16),

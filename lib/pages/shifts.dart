@@ -40,7 +40,8 @@ class _ShiftsPageState extends State<ShiftsPage> {
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
     String formattedDate = "${now.day}-${now.month}-${now.year}";
-    String formattedTime = "${now.hour}:${now.minute}";
+    String formattedTime =
+        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
 
     int currentHour = now.hour;
 
