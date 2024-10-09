@@ -49,46 +49,73 @@ class TeamsPage extends StatelessWidget {
 
   Widget _buildTeamTile(
       BuildContext context, String teamName, List<String> members) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Colors.white, Color(0xFFDDDDFF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.4),
-            spreadRadius: 2,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return FutureBuilder<QuerySnapshot>(
+      future: FirebaseFirestore.instance.collection('users').get(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const CircularProgressIndicator();
+        }
+
+        var users = snapshot.data!.docs;
+        Map<String, String> memberOccupations = {};
+
+        // Kullanıcıların meslek bilgilerini al
+        for (var userDoc in users) {
+          var userData = userDoc.data() as Map<String, dynamic>;
+          String userName = userData['name'] ?? '';
+          String occupation = userData['occupation'] ?? 'Bilinmiyor';
+          if (members.contains(userName)) {
+            memberOccupations[userName] = occupation;
+          }
+        }
+
+        return Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Colors.white, Color(0xFFDDDDFF)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.4),
+                spreadRadius: 2,
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: ExpansionTile(
-          tilePadding: const EdgeInsets.all(16),
-          title: Text(
-            teamName,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: ExpansionTile(
+              tilePadding: const EdgeInsets.all(16),
+              title: Text(
+                teamName,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              children: members.map((member) {
+                String occupation = memberOccupations[member] ?? 'Bilinmiyor';
+                return ListTile(
+                  leading: const Icon(Icons.person),
+                  title: Text(
+                    member,
+                    style: const TextStyle(color: Colors.black54),
+                  ),
+                  trailing: Text(
+                    occupation,
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                );
+              }).toList(),
             ),
           ),
-          children: members
-              .map((member) => ListTile(
-                    leading: const Icon(Icons.person),
-                    title: Text(
-                      member,
-                      style: const TextStyle(color: Colors.black54),
-                    ),
-                  ))
-              .toList(),
-        ),
-      ),
+        );
+      },
     );
   }
 
