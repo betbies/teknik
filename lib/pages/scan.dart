@@ -93,6 +93,9 @@ class _ScanPageState extends State<ScanPage> {
               child: const Text('Kapat'),
               onPressed: () {
                 Navigator.of(context).pop();
+                setState(() {
+                  _popupShown = false; // Pop-up kapandığında durum güncelle
+                });
               },
             ),
             TextButton(
@@ -105,6 +108,10 @@ class _ScanPageState extends State<ScanPage> {
                     String userName = userData['name'] ?? 'Unknown';
                     _addErrorEntry(userName, machineName, error);
                     Navigator.of(context).pop();
+                    setState(() {
+                      _popupShown =
+                          false; // Hata pop-up'ı kapandığında durum güncelle
+                    });
                   });
                 }
               },
@@ -112,12 +119,7 @@ class _ScanPageState extends State<ScanPage> {
           ],
         );
       },
-    ).then((_) {
-      // Pop-up kapandığında çalışacak kısım
-      setState(() {
-        _popupShown = false;
-      });
-    });
+    );
     _popupShown = true;
   }
 
@@ -127,7 +129,7 @@ class _ScanPageState extends State<ScanPage> {
 
     showDialog(
       context: context,
-      barrierDismissible: true, // Boş alana tıklayınca kapansın
+      barrierDismissible: false, // Pop-up dışında tıklanarak kapanamaz
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.white.withOpacity(0.9),
@@ -192,6 +194,10 @@ class _ScanPageState extends State<ScanPage> {
                           onPressed: () async {
                             await _addCheckedEntry(userName, machineName);
                             Navigator.of(context).pop();
+                            setState(() {
+                              _popupShown =
+                                  false; // Kontrol edildi pop-up'ı kapandığında durum güncelle
+                            });
                           },
                           child: Center(
                             child: Text(
@@ -218,17 +224,16 @@ class _ScanPageState extends State<ScanPage> {
               child: const Text('Kapat'),
               onPressed: () {
                 Navigator.of(context).pop();
+                setState(() {
+                  _popupShown =
+                      false; // Kapatma butonuna tıklanınca durum güncelle
+                });
               },
             ),
           ],
         );
       },
-    ).then((_) {
-      // Pop-up kapandığında çalışacak kısım
-      setState(() {
-        _popupShown = false;
-      });
-    });
+    );
 
     // Pop-up açık olduğunda QR kod okumayı durdur
     _popupShown = true;
@@ -291,20 +296,14 @@ class _ScanPageState extends State<ScanPage> {
             color: Colors.transparent,
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(16), // Kenarları yuvarlak yap
+            borderRadius: BorderRadius.circular(20.0),
             child: MobileScanner(
               onDetect: _onDetectBarcode,
+              fit: BoxFit.cover,
             ),
           ),
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    _errorController.dispose();
-    super.dispose();
   }
 }
