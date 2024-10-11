@@ -336,7 +336,8 @@ class _ShiftsPageState extends State<ShiftsPage> {
     DateTime now = specificDate ??
         DateTime.now(); // Eğer belirli bir tarih varsa onu kullan
 
-    List<Map<String, dynamic>> shiftRecords = [];
+    Map<String, List<Map<String, dynamic>>> machineGroup =
+        {}; // Makine adı ile kullanıcıları grupla
 
     for (var record in checkedRecords) {
       DateTime timestamp = (record['timestamp'] as Timestamp).toDate();
@@ -347,44 +348,40 @@ class _ShiftsPageState extends State<ShiftsPage> {
       if (timestamp.year == now.year &&
           timestamp.month == now.month &&
           timestamp.day == now.day) {
-        if (shift == 'A' && timestamp.hour >= 8 && timestamp.hour < 16) {
-          shiftRecords.add({
-            'machineName': machineName,
-            'userName': userName,
-            'timestamp': timestamp
-          });
-        } else if (shift == 'B' &&
-            timestamp.hour >= 16 &&
-            timestamp.hour < 24) {
-          shiftRecords.add({
-            'machineName': machineName,
-            'userName': userName,
-            'timestamp': timestamp
-          });
-        } else if (shift == 'C' &&
-            (timestamp.hour < 8 && timestamp.hour >= 0)) {
-          shiftRecords.add({
-            'machineName': machineName,
-            'userName': userName,
-            'timestamp': timestamp
-          });
+        if ((shift == 'A' && timestamp.hour >= 8 && timestamp.hour < 16) ||
+            (shift == 'B' && timestamp.hour >= 16 && timestamp.hour < 24) ||
+            (shift == 'C' && timestamp.hour < 8 && timestamp.hour >= 0)) {
+          // Eğer bu makine daha önce kontrol edildiyse, kullanıcı ve zaman bilgilerini ekle
+          if (machineGroup.containsKey(machineName)) {
+            machineGroup[machineName]!.add({
+              'userName': userName,
+              'timestamp': timestamp,
+            });
+          } else {
+            // İlk defa kontrol edilen makineyi gruba ekle
+            machineGroup[machineName] = [
+              {
+                'userName': userName,
+                'timestamp': timestamp,
+              }
+            ];
+          }
         }
       }
     }
 
-    shiftRecords.sort((a, b) => a['timestamp'].compareTo(b['timestamp']));
+    // Her makine için bilgileri topla
+    machineGroup.forEach((machineName, records) {
+      details += "$machineName\n"; // Makine adını bir kez yaz
 
-    for (var i = 0; i < shiftRecords.length; i++) {
-      var record = shiftRecords[i];
-      details +=
-          "${record['machineName']} \n ${record['userName']} - ${record['timestamp'].hour.toString().padLeft(2, '0')}:${record['timestamp'].minute.toString().padLeft(2, '0')}\n";
-
-      // Kayıtlar arasında çizgi ekleme (son kayıttan sonra eklenmez)
-      if (i < shiftRecords.length - 1) {
+      // Kontrol eden kullanıcıları ve zamanları alt alta ekle
+      for (var record in records) {
         details +=
-            "----------\n"; // Bu çizgi temsili. Asıl ekranda Divider kullanacağız.
+            "${record['userName']} - ${record['timestamp'].hour.toString().padLeft(2, '0')}:${record['timestamp'].minute.toString().padLeft(2, '0')}\n";
       }
-    }
+
+      details += "----------\n"; // Kayıtlar arasında çizgi ekle
+    });
 
     return details.isEmpty ? 'Henüz kontrol edilmedi.' : details.trim();
   }
