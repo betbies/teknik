@@ -4,6 +4,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
+import 'package:image_picker/image_picker.dart';
 
 class ScanPage extends StatefulWidget {
   const ScanPage({super.key});
@@ -18,7 +19,8 @@ class _ScanPageState extends State<ScanPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _errorController = TextEditingController();
   Timer? _debounce;
-  bool _isScanningAllowed = true; // Yeni değişken
+  bool _isScanningAllowed = true;
+  String? _imageUrl;
 
   Future<Map<String, dynamic>> _getUserData() async {
     User? user = _auth.currentUser;
@@ -38,6 +40,7 @@ class _ScanPageState extends State<ScanPage> {
       'machine_name': machineName,
       'timestamp': now,
       'error': error,
+      'image_url': _imageUrl,
     });
   }
 
@@ -51,7 +54,7 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   void _showErrorPopup(BuildContext context, String machineName) {
-    _popupShown = true; // Hata pop-up'ı açıldığında durumu güncelle
+    _popupShown = true;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -75,14 +78,28 @@ class _ScanPageState extends State<ScanPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
                     controller: _errorController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderRadius: BorderRadius.circular(10.0),
                       ),
                       hintText: 'Arıza detaylarını girin',
                     ),
                     maxLines: 3,
                   ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final picker = ImagePicker();
+                    final pickedFile =
+                        await picker.pickImage(source: ImageSource.camera);
+
+                    if (pickedFile != null) {
+                      setState(() {
+                        _imageUrl = pickedFile.path;
+                      });
+                    }
+                  },
+                  child: const Text('Fotoğraf Çek'),
                 ),
               ],
             ),
@@ -94,7 +111,7 @@ class _ScanPageState extends State<ScanPage> {
               onPressed: () {
                 Navigator.of(context).pop();
                 setState(() {
-                  _popupShown = false; // Pop-up kapandığında durumu güncelle
+                  _popupShown = false;
                 });
               },
             ),
@@ -109,8 +126,7 @@ class _ScanPageState extends State<ScanPage> {
                     _addErrorEntry(userName, machineName, error);
                     Navigator.of(context).pop();
                     setState(() {
-                      _popupShown =
-                          false; // Hata pop-up'ı kapandığında durumu güncelle
+                      _popupShown = false;
                     });
                   });
                 }
@@ -125,7 +141,7 @@ class _ScanPageState extends State<ScanPage> {
   void _showPopup(BuildContext context, String machineName) async {
     final userData = await _getUserData();
     String userName = userData['name'] ?? 'Unknown';
-    _popupShown = true; // Kontrol pop-up'ı açıldığında durumu güncelle
+    _popupShown = true;
 
     showDialog(
       context: context,
@@ -195,8 +211,7 @@ class _ScanPageState extends State<ScanPage> {
                             await _addCheckedEntry(userName, machineName);
                             Navigator.of(context).pop();
                             setState(() {
-                              _popupShown =
-                                  false; // Kontrol edildi pop-up'ı kapandığında durumu güncelle
+                              _popupShown = false;
                             });
                           },
                           child: Center(
@@ -225,8 +240,7 @@ class _ScanPageState extends State<ScanPage> {
               onPressed: () {
                 Navigator.of(context).pop();
                 setState(() {
-                  _popupShown =
-                      false; // Kapatma butonuna tıklanınca durumu güncelle
+                  _popupShown = false;
                 });
               },
             ),
@@ -273,10 +287,9 @@ class _ScanPageState extends State<ScanPage> {
         final String? scannedCode = barcode.rawValue;
         if (scannedCode != null && !_popupShown && _isScanningAllowed) {
           _checkQRCode(scannedCode.trim());
-          _isScanningAllowed = false; // Okuma iznini kapat
-          // 5 saniye bekle
-          Future.delayed(const Duration(seconds: 5), () {
-            _isScanningAllowed = true; // Okuma iznini aç
+          _isScanningAllowed = false;
+          Future.delayed(const Duration(seconds: 1), () {
+            _isScanningAllowed = true;
           });
         }
       }
@@ -294,8 +307,9 @@ class _ScanPageState extends State<ScanPage> {
       body: Center(
         child: Container(
           padding: const EdgeInsets.all(16.0),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: Colors.transparent,
+            borderRadius: BorderRadius.circular(20.0), // Kenarlık yuvarlatıldı
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20.0),
