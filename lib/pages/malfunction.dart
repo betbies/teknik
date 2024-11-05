@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore ekledik
 import 'dart:math'; // Rastgele sayı üretmek için
+import 'dart:io'; // File sınıfını kullanmak için
 
 class MalfunctionPage extends StatelessWidget {
   const MalfunctionPage({super.key});
@@ -49,6 +50,8 @@ class MalfunctionPage extends StatelessWidget {
                     malfunctionData['machine_name'] ?? 'Bilinmiyor';
                 String description =
                     malfunctionData['error'] ?? 'Bilinmeyen hata';
+                String imagePath =
+                    malfunctionData['image_path'] ?? ''; // Fotoğraf yolu
                 Timestamp timestamp =
                     malfunctionData['timestamp'] ?? Timestamp.now();
 
@@ -61,12 +64,13 @@ class MalfunctionPage extends StatelessWidget {
                 return Column(
                   children: [
                     _buildMalfunctionEntry(
-                      context, // context'i burada geçiyoruz
+                      context,
                       member: userName,
                       machine: machineName,
                       description: description,
                       date: formattedDate,
                       time: formattedTime,
+                      imagePath: imagePath, // Fotoğraf yolunu ekle
                     ),
                     const SizedBox(
                         height: 20), // İki arıza girişi arasında boşluk
@@ -87,6 +91,7 @@ class MalfunctionPage extends StatelessWidget {
     required String description,
     required String date,
     required String time,
+    required String imagePath, // Yeni parametre
   }) {
     final formattedDate = date;
     final random = Random();
@@ -96,44 +101,20 @@ class MalfunctionPage extends StatelessWidget {
       children: [
         Transform(
           alignment: Alignment.topLeft,
-          transform: Matrix4.identity()
-            ..rotateZ(randomAngle), // Rastgele açı ile döndür
+          transform: Matrix4.identity()..rotateZ(randomAngle),
           child: CustomPaint(
             painter: OldPaperPainter(),
             child: Container(
-              width: MediaQuery.of(context).size.width *
-                  0.85, // Sayfa genişliğini küçült
-              padding: const EdgeInsets.all(9.0), // İçerik için padding ekle
+              width: MediaQuery.of(context).size.width * 0.85,
+              padding: const EdgeInsets.all(9.0),
               decoration: BoxDecoration(
-                color: Colors.brown.withOpacity(0.1), // İçerik arka planı
+                color: Colors.brown.withOpacity(0.1),
               ),
               child: Column(
                 children: [
-                  const SizedBox(
-                      height: 1), // Yuvarlakları aşağı kaydırmak için
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: List.generate(
-                      9,
-                      (index) => Container(
-                        width: 15, // Yuvarlak boyutu
-                        height: 15,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFFFFF), // Yuvarlak rengi
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              offset: const Offset(2, 2),
-                              blurRadius: 5,
-                            ),
-                          ], // Yuvarlak gölgesi
-                        ),
-                      ),
-                    ),
-                  ),
+                  const SizedBox(height: 1),
                   ListTile(
-                    contentPadding: EdgeInsets.zero, // Padding'i sıfırla
+                    contentPadding: EdgeInsets.zero,
                     title: Row(
                       children: [
                         const Icon(
@@ -158,12 +139,11 @@ class MalfunctionPage extends StatelessWidget {
                         Row(
                           children: [
                             const Icon(
-                              Icons.location_on, // Konum simgesi
+                              Icons.location_on,
                               size: 16,
                               color: Colors.black54,
                             ),
-                            const SizedBox(
-                                width: 8), // Simge ile metin arasında boşluk
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 machine,
@@ -172,10 +152,8 @@ class MalfunctionPage extends StatelessWidget {
                                   fontStyle: FontStyle.italic,
                                   color: Colors.black54,
                                 ),
-                                maxLines:
-                                    2, // Maximum of 2 lines for machine name
-                                overflow:
-                                    TextOverflow.ellipsis, // Overflow behavior
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -183,12 +161,11 @@ class MalfunctionPage extends StatelessWidget {
                         Row(
                           children: [
                             const Icon(
-                              Icons.error, // Arıza simgesi
+                              Icons.error,
                               size: 16,
-                              color: Colors.red, // Arıza simgesi rengi
+                              color: Colors.red,
                             ),
-                            const SizedBox(
-                                width: 8), // Simge ile metin arasında boşluk
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 description,
@@ -200,6 +177,14 @@ class MalfunctionPage extends StatelessWidget {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 4),
+                        if (imagePath.isNotEmpty) // Eğer fotoğraf varsa göster
+                          Image.file(
+                            File(imagePath), // Burada Image.file kullanıyoruz
+                            height: 200, // Görsel boyutu
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
                         const SizedBox(height: 4),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -234,16 +219,16 @@ class MalfunctionPage extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: 0, // Y ekseninde konum
-          left: 0, // X ekseninde konum
-          right: 0, // Eşit bir şekilde sağa da yerleştirmek için
+          top: 0,
+          left: 0,
+          right: 0,
           child: Center(
             child: Transform.rotate(
-              angle: -0.5, // Ataşı biraz döndür
+              angle: -0.5,
               child: const Icon(
-                Icons.attach_file, // Ataş simgesi
+                Icons.attach_file,
                 size: 30,
-                color: Colors.brown, // Ataş rengi
+                color: Colors.brown,
               ),
             ),
           ),

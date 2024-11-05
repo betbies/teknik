@@ -138,7 +138,8 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
 
-  void _showPopup(BuildContext context, String machineName) async {
+  void _showPopup(
+      BuildContext context, String docName, String machineName) async {
     final userData = await _getUserData();
     String userName = userData['name'] ?? 'Unknown';
     _popupShown = true;
@@ -156,15 +157,31 @@ class _ScanPageState extends State<ScanPage> {
             height: MediaQuery.of(context).size.height * 0.5,
             child: Column(
               children: [
+                // Doküman adı ve makine adı üst üste ekleniyor
                 Container(
                   padding: const EdgeInsets.all(10),
-                  child: Text(
-                    machineName,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
+                  child: Column(
+                    children: [
+                      Text(
+                        docName, // Doküman adı
+                        style: GoogleFonts.rubik(
+                          // Yazı tipi Roboto olarak ayarlandı
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey, // Metin rengi gri yapıldı
+                          fontStyle: FontStyle.italic, // Metin italik yapıldı
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        machineName, // Makine adı
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 ),
                 Expanded(
@@ -251,27 +268,34 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   Future<void> _checkQRCode(String scannedCode) async {
-    final snapshot =
-        await _firestore.collection('machines').doc('resort').get();
-    final machines = snapshot.data()?['machines'] as List<dynamic>?;
+    // 'resort', 'club' ve 'royal' dokümanlarını belirtiyoruz
+    final documentNames = ['resort', 'club', 'royal'];
 
-    if (machines != null) {
-      for (var machine in machines) {
-        if (machine['qrCode'] == scannedCode) {
-          if (!_popupShown) {
-            _showPopup(context, machine['machineName']);
+    for (var docName in documentNames) {
+      final snapshot =
+          await _firestore.collection('machines').doc(docName).get();
+      final machines = snapshot.data()?['machines'] as List<dynamic>?;
+
+      if (machines != null) {
+        for (var machine in machines) {
+          if (machine['qrCode'] == scannedCode) {
+            if (!_popupShown) {
+              // Doküman adı ve makine adını gönderiyoruz
+              _showPopup(context, docName, machine['machineName']);
+            }
+            return;
           }
-          return;
         }
       }
+    }
 
-      if (!_popupShown) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Eşleşme yok!'),
-          ),
-        );
-      }
+    // Eşleşme yoksa bildirim gösteriliyor
+    if (!_popupShown) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Eşleşme yok!'),
+        ),
+      );
     }
   }
 
