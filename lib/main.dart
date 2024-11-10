@@ -5,8 +5,8 @@ import 'pages/shifts.dart';
 import 'pages/scan.dart';
 import 'pages/malfunction.dart';
 import 'pages/profile.dart';
-import 'auth/login.dart'; // Login sayfasını içe aktar
-// Signup sayfasını içe aktar
+import 'auth/login.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
@@ -25,28 +25,26 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF6CAEED),
-          primary: const Color(0xFF6CAEED), // Primary color for the app
-          secondary: const Color(0xFF89CFF0), // Secondary color for the app
+          primary: const Color(0xFF6CAEED),
+          secondary: const Color(0xFF89CFF0),
         ),
         useMaterial3: true,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFFBFAF5), // Background color of AppBar
+          backgroundColor: Color(0xFFFBFAF5),
           elevation: 0,
           titleTextStyle: TextStyle(
-            color: Color(0xFF181A18), // Text color in AppBar
-            fontSize: 14, // Font size of the title
+            color: Color(0xFF181A18),
+            fontSize: 14,
           ),
-          toolbarHeight: 20, // Height of the AppBar
+          toolbarHeight: 20,
         ),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor:
-              Color(0xFFFCFBF5), // Background color of BottomNavigationBar
-          selectedItemColor: Color(0xFF6CAEED), // Color of selected item
-          unselectedItemColor: Color(0xFFBDE0FE), // Color of unselected items
+          backgroundColor: Color(0xFFFCFBF5),
+          selectedItemColor: Color(0xFF6CAEED),
+          unselectedItemColor: Color(0xFFBDE0FE),
         ),
-        scaffoldBackgroundColor:
-            const Color(0xFFFCFBF5), // Background color of the Scaffold
-        cardColor: const Color(0xFFDDEEFA), // Background color of cards
+        scaffoldBackgroundColor: const Color(0xFFFCFBF5),
+        cardColor: const Color(0xFFDDEEFA),
       ),
       home: const RootPage(), // İlk sayfa RootPage olacak
     );
@@ -58,10 +56,18 @@ class RootPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isLoggedIn = false; // Geçici giriş durumu (false ise Login'e gider)
-
-    // Eğer giriş yapılmışsa HomePage'e, yapılmamışsa LoginPage'e yönlendirir
-    return isLoggedIn ? const HomePage() : const LoginPage();
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasData) {
+          return const HomePage();
+        }
+        return const LoginPage();
+      },
+    );
   }
 }
 
@@ -73,7 +79,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 2; // Başlangıç olarak 'Scan' sayfası seçili olacak.
+  int _selectedIndex = 2;
 
   final List<Widget> _pages = <Widget>[
     const TeamsPage(),
@@ -93,7 +99,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Geri tuşunu kaldırır
+        automaticallyImplyLeading: false,
         title: const Text('TEKNİK'),
       ),
       body: _pages[_selectedIndex],
@@ -101,16 +107,15 @@ class _HomePageState extends State<HomePage> {
         index: _selectedIndex,
         height: 60,
         items: const <Widget>[
-          Icon(Icons.group, size: 30, color: Colors.white), // Ekipler
-          Icon(Icons.access_time, size: 30, color: Colors.white), // Vardiyalar
-          Icon(Icons.qr_code_scanner, size: 30, color: Colors.white), // Scan
-          Icon(Icons.warning, size: 30, color: Colors.white), // Arızalar
-          Icon(Icons.person, size: 30, color: Colors.white), // Profil
+          Icon(Icons.group, size: 30, color: Colors.white),
+          Icon(Icons.access_time, size: 30, color: Colors.white),
+          Icon(Icons.qr_code_scanner, size: 30, color: Colors.white),
+          Icon(Icons.warning, size: 30, color: Colors.white),
+          Icon(Icons.person, size: 30, color: Colors.white),
         ],
-        color: const Color(0xFF181A18), // Color of the navigation bar
-        buttonBackgroundColor: const Color(0xFF6CAEED), // Color of the button
-        backgroundColor:
-            const Color(0xFFFBFAF5), // Background color of the navigation bar
+        color: const Color(0xFF181A18),
+        buttonBackgroundColor: const Color(0xFF6CAEED),
+        backgroundColor: const Color(0xFFFBFAF5),
         onTap: _onItemTapped,
         animationCurve: Curves.easeInOut,
         animationDuration: const Duration(milliseconds: 300),
