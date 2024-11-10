@@ -4,7 +4,6 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
-import 'package:image_picker/image_picker.dart';
 
 class ScanPage extends StatefulWidget {
   const ScanPage({super.key});
@@ -20,7 +19,6 @@ class _ScanPageState extends State<ScanPage> {
   final TextEditingController _errorController = TextEditingController();
   Timer? _debounce;
   bool _isScanningAllowed = true;
-  String? _imageUrl;
 
   Future<Map<String, dynamic>> _getUserData() async {
     User? user = _auth.currentUser;
@@ -40,7 +38,6 @@ class _ScanPageState extends State<ScanPage> {
       'machine_name': machineName,
       'timestamp': now,
       'error': error,
-      'image_url': _imageUrl,
     });
   }
 
@@ -86,20 +83,6 @@ class _ScanPageState extends State<ScanPage> {
                     ),
                     maxLines: 3,
                   ),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final picker = ImagePicker();
-                    final pickedFile =
-                        await picker.pickImage(source: ImageSource.camera);
-
-                    if (pickedFile != null) {
-                      setState(() {
-                        _imageUrl = pickedFile.path;
-                      });
-                    }
-                  },
-                  child: const Text('Fotoğraf Çek'),
                 ),
               ],
             ),
@@ -157,24 +140,22 @@ class _ScanPageState extends State<ScanPage> {
             height: MediaQuery.of(context).size.height * 0.5,
             child: Column(
               children: [
-                // Doküman adı ve makine adı üst üste ekleniyor
                 Container(
                   padding: const EdgeInsets.all(10),
                   child: Column(
                     children: [
                       Text(
-                        docName, // Doküman adı
+                        docName,
                         style: GoogleFonts.rubik(
-                          // Yazı tipi Roboto olarak ayarlandı
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey, // Metin rengi gri yapıldı
-                          fontStyle: FontStyle.italic, // Metin italik yapıldı
+                          color: Colors.grey,
+                          fontStyle: FontStyle.italic,
                         ),
                         textAlign: TextAlign.center,
                       ),
                       Text(
-                        machineName, // Makine adı
+                        machineName,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -268,7 +249,6 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   Future<void> _checkQRCode(String scannedCode) async {
-    // 'resort', 'club' ve 'royal' dokümanlarını belirtiyoruz
     final documentNames = ['resort', 'club', 'royal'];
 
     for (var docName in documentNames) {
@@ -280,7 +260,6 @@ class _ScanPageState extends State<ScanPage> {
         for (var machine in machines) {
           if (machine['qrCode'] == scannedCode) {
             if (!_popupShown) {
-              // Doküman adı ve makine adını gönderiyoruz
               _showPopup(context, docName, machine['machineName']);
             }
             return;
@@ -289,7 +268,6 @@ class _ScanPageState extends State<ScanPage> {
       }
     }
 
-    // Eşleşme yoksa bildirim gösteriliyor
     if (!_popupShown) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -333,7 +311,7 @@ class _ScanPageState extends State<ScanPage> {
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             color: Colors.transparent,
-            borderRadius: BorderRadius.circular(20.0), // Kenarlık yuvarlatıldı
+            borderRadius: BorderRadius.circular(20.0),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20.0),
