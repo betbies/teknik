@@ -29,10 +29,17 @@ class _ShiftsPageState extends State<ShiftsPage> {
     // Firestore'dan verileri çekme
     QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection('checked').get();
+
     setState(() {
+      // Zaman damgalarına göre sıralı olacak şekilde düzenleme yapıyoruz
       checkedRecords = snapshot.docs
           .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList();
+          .toList()
+        ..sort((a, b) {
+          DateTime aTimestamp = (a['timestamp'] as Timestamp).toDate();
+          DateTime bTimestamp = (b['timestamp'] as Timestamp).toDate();
+          return aTimestamp.compareTo(bTimestamp);
+        });
     });
   }
 

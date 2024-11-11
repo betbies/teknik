@@ -207,7 +207,8 @@ class _ScanPageState extends State<ScanPage> {
                           ),
                           onPressed: () async {
                             await _addCheckedEntry(userName, machineName);
-                            Navigator.of(context).pop();
+                            Navigator.of(context, rootNavigator: true)
+                                .pop(); // Güncel context kullanımı
                             setState(() {
                               _popupShown = false;
                             });

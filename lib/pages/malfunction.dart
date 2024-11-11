@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore ekledik
-import 'dart:math'; // Rastgele sayı üretmek için
-import 'dart:io'; // File sınıfını kullanmak için
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:math';
+import 'dart:io';
 
 class MalfunctionPage extends StatelessWidget {
   const MalfunctionPage({super.key});
@@ -10,18 +10,17 @@ class MalfunctionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFCFBF5), // Sayfa arkaplan rengi
+      backgroundColor: const Color(0xFFFCFBF5),
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Geri tuşunu kaldırır
+        automaticallyImplyLeading: false,
         title: const Text(
           'Arıza Defteri',
           style: TextStyle(color: Colors.black),
         ),
-        backgroundColor: const Color(0xFFFCFBF5), // AppBar arka plan rengi
-        elevation: 0, // AppBar gölgesi kaldırıldı
-        centerTitle: true, // Başlığı ortala
-        iconTheme:
-            const IconThemeData(color: Colors.black), // Geri okunun rengi
+        backgroundColor: const Color(0xFFFCFBF5),
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Container(
         padding: const EdgeInsets.all(16.0),
@@ -30,7 +29,7 @@ class MalfunctionPage extends StatelessWidget {
         child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('error')
-              .orderBy('timestamp', descending: true) // Zaman sırasına göre
+              .orderBy('timestamp', descending: true)
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
@@ -50,12 +49,10 @@ class MalfunctionPage extends StatelessWidget {
                     malfunctionData['machine_name'] ?? 'Bilinmiyor';
                 String description =
                     malfunctionData['error'] ?? 'Bilinmeyen hata';
-                String imagePath =
-                    malfunctionData['image_path'] ?? ''; // Fotoğraf yolu
+                String imagePath = malfunctionData['image_path'] ?? '';
                 Timestamp timestamp =
                     malfunctionData['timestamp'] ?? Timestamp.now();
 
-                // Tarih ve saat formatlama
                 DateTime dateTime = timestamp.toDate();
                 String formattedDate =
                     DateFormat('dd/MM/yyyy').format(dateTime);
@@ -70,10 +67,9 @@ class MalfunctionPage extends StatelessWidget {
                       description: description,
                       date: formattedDate,
                       time: formattedTime,
-                      imagePath: imagePath, // Fotoğraf yolunu ekle
+                      imagePath: imagePath,
                     ),
-                    const SizedBox(
-                        height: 20), // İki arıza girişi arasında boşluk
+                    const SizedBox(height: 20),
                   ],
                 );
               },
@@ -91,11 +87,10 @@ class MalfunctionPage extends StatelessWidget {
     required String description,
     required String date,
     required String time,
-    required String imagePath, // Yeni parametre
+    required String imagePath,
   }) {
-    final formattedDate = date;
     final random = Random();
-    final randomAngle = (random.nextDouble() - 0.5) * 0.05; // Rastgele açı
+    final randomAngle = (random.nextDouble() - 0.5) * 0.05;
 
     return Stack(
       children: [
@@ -113,6 +108,28 @@ class MalfunctionPage extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 1),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(
+                      9,
+                      (index) => Container(
+                        width: 15,
+                        height: 15,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFFFFF),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.5),
+                              offset: const Offset(2, 2),
+                              blurRadius: 5,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Row(
@@ -178,10 +195,10 @@ class MalfunctionPage extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        if (imagePath.isNotEmpty) // Eğer fotoğraf varsa göster
+                        if (imagePath.isNotEmpty)
                           Image.file(
-                            File(imagePath), // Burada Image.file kullanıyoruz
-                            height: 200, // Görsel boyutu
+                            File(imagePath),
+                            height: 200,
                             width: double.infinity,
                             fit: BoxFit.cover,
                           ),
@@ -193,7 +210,7 @@ class MalfunctionPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  formattedDate,
+                                  date,
                                   style: const TextStyle(
                                     fontSize: 14,
                                     color: Colors.black45,
@@ -241,22 +258,20 @@ class MalfunctionPage extends StatelessWidget {
 class OldPaperPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paintBrown = Paint()
-      ..color = const Color(0xFFF5DEB3); // Eski kağıt rengi
+    final paintBrown = Paint()..color = const Color(0xFFF5DEB3);
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paintBrown);
 
     final paintLine = Paint()
       ..color = Colors.brown.withOpacity(0.25)
       ..strokeWidth = 1.0;
-
-    double lineHeight = 24; // Sabit satır yüksekliği
+    double lineHeight = 24;
     for (double i = lineHeight; i < size.height; i += lineHeight) {
       canvas.drawLine(Offset(0, i), Offset(size.width, i), paintLine);
     }
 
     paintLine.color = Colors.brown.withOpacity(0.5);
     paintLine.strokeWidth = 1.5;
-    double dashHeight = 4; // Kesik çizgilerin yüksekliği
+    double dashHeight = 4;
     for (double i = 0; i < size.height; i += 9) {
       canvas.drawLine(Offset(0, i), Offset(0, i + dashHeight), paintLine);
     }
@@ -266,7 +281,6 @@ class OldPaperPainter extends CustomPainter {
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10.0);
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paintEdges);
 
-    // Sayfa altındaki gölgelendirme
     final paintShadow = Paint()
       ..color = Colors.black.withOpacity(0.1)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.0);
