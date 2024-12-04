@@ -300,7 +300,9 @@ class _ScanPageState extends State<ScanPage> {
         if (scannedCode != null && !_popupShown && _isScanningAllowed) {
           _checkQRCode(scannedCode.trim());
           _isScanningAllowed = false;
-          Future.delayed(const Duration(seconds: 1), () {
+
+          // 5 saniyelik bekleme
+          Future.delayed(const Duration(seconds: 5), () {
             _isScanningAllowed = true;
           });
         }
