@@ -247,7 +247,6 @@ class _ScanPageState extends State<ScanPage> {
               onPressed: () {
                 Navigator.of(context).pop();
                 setState(() {
-                  _popupShown = false;
                   _activePopups.remove(machineName); // Pop-up kaldırıldı
                 });
               },
@@ -278,13 +277,12 @@ class _ScanPageState extends State<ScanPage> {
       }
     }
 
-    if (!_popupShown) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Eşleşme yok!'),
-        ),
-      );
-    }
+    // Eğer hiçbir eşleşme bulunmadıysa
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Eşleşme yok!'),
+      ),
+    );
   }
 
   void _onDetectBarcode(BarcodeCapture barcodeCapture) {
