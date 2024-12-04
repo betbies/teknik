@@ -19,6 +19,7 @@ class _ScanPageState extends State<ScanPage> {
   final TextEditingController _errorController = TextEditingController();
   Timer? _debounce;
   bool _isScanningAllowed = true;
+  final Set<String> _activePopups = {}; // Açık olan pop-up'ları takip için
 
   Future<Map<String, dynamic>> _getUserData() async {
     User? user = _auth.currentUser;
@@ -123,9 +124,15 @@ class _ScanPageState extends State<ScanPage> {
 
   void _showPopup(
       BuildContext context, String docName, String machineName) async {
+    // Eğer pop-up zaten gösteriliyorsa çıkış yap
+    if (_activePopups.contains(machineName)) {
+      return;
+    }
+
+    // Yeni pop-up için ekle
+    _activePopups.add(machineName);
     final userData = await _getUserData();
     String userName = userData['name'] ?? 'Unknown';
-    _popupShown = true;
 
     showDialog(
       context: context,
@@ -207,10 +214,11 @@ class _ScanPageState extends State<ScanPage> {
                           ),
                           onPressed: () async {
                             await _addCheckedEntry(userName, machineName);
-                            Navigator.of(context, rootNavigator: true)
-                                .pop(); // Güncel context kullanımı
+                            Navigator.of(context, rootNavigator: true).pop();
                             setState(() {
                               _popupShown = false;
+                              _activePopups
+                                  .remove(machineName); // Pop-up kaldırıldı
                             });
                           },
                           child: Center(
@@ -240,6 +248,7 @@ class _ScanPageState extends State<ScanPage> {
                 Navigator.of(context).pop();
                 setState(() {
                   _popupShown = false;
+                  _activePopups.remove(machineName); // Pop-up kaldırıldı
                 });
               },
             ),
@@ -260,7 +269,7 @@ class _ScanPageState extends State<ScanPage> {
       if (machines != null) {
         for (var machine in machines) {
           if (machine['qrCode'] == scannedCode) {
-            if (!_popupShown) {
+            if (!_activePopups.contains(machine['machineName'])) {
               _showPopup(context, docName, machine['machineName']);
             }
             return;
