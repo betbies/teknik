@@ -185,7 +185,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
                         vertical: 6, horizontal: 16), // Daha küçük boyut
                   ),
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Close'),
+                  child: const Text('Kapat'),
                 ),
               ],
             ),
