@@ -48,7 +48,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('$formattedDate'),
+          title: Text(formattedDate),
           content: SingleChildScrollView(
             child: Text(details),
           ),
