@@ -38,72 +38,105 @@ class _ShiftsPageState extends State<ShiftsPage> {
     }).toList();
 
     // Create lists for each shift
-    List<String> shiftC = [];
-    List<String> shiftA = [];
-    List<String> shiftB = [];
+    Map<String, List<Map<String, dynamic>>> shiftC = {};
+    Map<String, List<Map<String, dynamic>>> shiftA = {};
+    Map<String, List<Map<String, dynamic>>> shiftB = {};
 
+    // Group records by shift and machine name
     filteredRecords.forEach((record) {
       DateTime timestamp = (record['timestamp'] as Timestamp).toDate();
       String machineName = record['machine_name'];
       String userName = record['user_name'];
-
-      // Format the hour and minute to always be two digits
       String formattedHour = timestamp.hour.toString().padLeft(2, '0');
       String formattedMinute = timestamp.minute.toString().padLeft(2, '0');
+      String time = "$formattedHour:$formattedMinute";
 
       if (timestamp.hour >= 0 && timestamp.hour < 8) {
-        shiftC
-            .add("$machineName - $userName - $formattedHour:$formattedMinute");
+        shiftC[machineName] = (shiftC[machineName] ?? [])
+          ..add({'user_name': userName, 'time': time});
       } else if (timestamp.hour >= 8 && timestamp.hour < 16) {
-        shiftA
-            .add("$machineName - $userName - $formattedHour:$formattedMinute");
+        shiftA[machineName] = (shiftA[machineName] ?? [])
+          ..add({'user_name': userName, 'time': time});
       } else if (timestamp.hour >= 16 && timestamp.hour < 24) {
-        shiftB
-            .add("$machineName - $userName - $formattedHour:$formattedMinute");
+        shiftB[machineName] = (shiftB[machineName] ?? [])
+          ..add({'user_name': userName, 'time': time});
       }
     });
 
-    // Sort shifts in the desired order (C, A, B)
+    // Create details string for shifts
     String details = '';
-    if (shiftC.isNotEmpty) {
-      details += "Shift C:\n" + shiftC.join("\n") + "\n\n";
+
+    void appendShiftDetails(
+        String shiftName, Map<String, List<Map<String, dynamic>>> shiftData) {
+      if (shiftData.isNotEmpty) {
+        details += "$shiftName:\n";
+        shiftData.forEach((machineName, records) {
+          details += "$machineName\n"; // Makine adını bir kez yaz
+          records.forEach((record) {
+            details += "${record['user_name']} - ${record['time']}\n";
+          });
+          details += "----------\n"; // Divider for each machine
+        });
+      }
     }
-    if (shiftA.isNotEmpty) {
-      details += "Shift A:\n" + shiftA.join("\n") + "\n\n";
-    }
-    if (shiftB.isNotEmpty) {
-      details += "Shift B:\n" + shiftB.join("\n") + "\n\n";
-    }
+
+    // Append each shift's details in C, A, B order
+    appendShiftDetails("Shift C", shiftC);
+    appendShiftDetails("Shift A", shiftA);
+    appendShiftDetails("Shift B", shiftB);
 
     showDialog(
       context: context,
       builder: (context) {
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
           child: Container(
-            width: 300, // Set the width for the square pop-up
-            height: 400, // Set the height for the square pop-up
+            width: 350,
+            height: 500,
             padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black26)],
+            ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   formattedDate,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
                 ),
+                SizedBox(height: 8),
+                Divider(color: Colors.grey), // Divider between date and content
                 SizedBox(height: 8),
                 Expanded(
                   child: SingleChildScrollView(
-                    child: Text(
-                      details.isEmpty
-                          ? 'No data available for this date.'
-                          : details,
-                      textAlign: TextAlign.left,
-                    ),
+                    child: details.isEmpty
+                        ? Center(
+                            child: Text('No data available for this date.'))
+                        : Column(
+                            children: [
+                              Text(
+                                details,
+                                style: TextStyle(fontSize: 14),
+                                textAlign: TextAlign.left,
+                              ),
+                            ],
+                          ),
                   ),
                 ),
+                SizedBox(height: 10),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  ),
                   onPressed: () => Navigator.pop(context),
                   child: const Text('Close'),
                 ),
@@ -112,6 +145,61 @@ class _ShiftsPageState extends State<ShiftsPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildShiftColumn(String shiftName, List<String> shiftDetails) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          shiftName,
+          style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.deepPurple),
+        ),
+        SizedBox(height: 8),
+        ...shiftDetails.map((detail) {
+          var parts = detail.split('\n');
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.lightBlueAccent,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.settings, color: Colors.white),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          parts[0], // Machine Name
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          '${parts[1]}', // User and Time
+                          style: TextStyle(fontSize: 12, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
+        Divider(color: Colors.grey), // Divider between shifts
+      ],
     );
   }
 
