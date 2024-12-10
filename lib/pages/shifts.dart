@@ -37,27 +37,79 @@ class _ShiftsPageState extends State<ShiftsPage> {
           timestamp.day == selectedDate.day;
     }).toList();
 
-    String details = filteredRecords.isEmpty
-        ? 'No data available for this date.'
-        : filteredRecords.map((record) {
-            DateTime timestamp = (record['timestamp'] as Timestamp).toDate();
-            return "${record['machine_name']} - ${record['user_name']} - ${timestamp.hour}:${timestamp.minute}";
-          }).join('\n');
+    // Create lists for each shift
+    List<String> shiftC = [];
+    List<String> shiftA = [];
+    List<String> shiftB = [];
+
+    filteredRecords.forEach((record) {
+      DateTime timestamp = (record['timestamp'] as Timestamp).toDate();
+      String machineName = record['machine_name'];
+      String userName = record['user_name'];
+
+      // Format the hour and minute to always be two digits
+      String formattedHour = timestamp.hour.toString().padLeft(2, '0');
+      String formattedMinute = timestamp.minute.toString().padLeft(2, '0');
+
+      if (timestamp.hour >= 0 && timestamp.hour < 8) {
+        shiftC
+            .add("$machineName - $userName - $formattedHour:$formattedMinute");
+      } else if (timestamp.hour >= 8 && timestamp.hour < 16) {
+        shiftA
+            .add("$machineName - $userName - $formattedHour:$formattedMinute");
+      } else if (timestamp.hour >= 16 && timestamp.hour < 24) {
+        shiftB
+            .add("$machineName - $userName - $formattedHour:$formattedMinute");
+      }
+    });
+
+    // Sort shifts in the desired order (C, A, B)
+    String details = '';
+    if (shiftC.isNotEmpty) {
+      details += "Shift C:\n" + shiftC.join("\n") + "\n\n";
+    }
+    if (shiftA.isNotEmpty) {
+      details += "Shift A:\n" + shiftA.join("\n") + "\n\n";
+    }
+    if (shiftB.isNotEmpty) {
+      details += "Shift B:\n" + shiftB.join("\n") + "\n\n";
+    }
 
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text(formattedDate),
-          content: SingleChildScrollView(
-            child: Text(details),
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
+          child: Container(
+            width: 300, // Set the width for the square pop-up
+            height: 400, // Set the height for the square pop-up
+            padding: EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Text(
+                  formattedDate,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Text(
+                      details.isEmpty
+                          ? 'No data available for this date.'
+                          : details,
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Close'),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
