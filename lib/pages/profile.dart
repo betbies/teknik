@@ -37,131 +37,171 @@ class ProfilePage extends StatelessWidget {
         elevation: 0,
       ),
       backgroundColor: const Color(0xFFFCFBF5),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: FutureBuilder<Map<String, dynamic>>(
-              future: _getUserData(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No user data found.'));
-                }
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: FutureBuilder<Map<String, dynamic>>(
+          future: _getUserData(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No user data found.'));
+            }
 
-                final userData = snapshot.data!;
+            final userData = snapshot.data!;
 
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    // Profil Bilgileri Kartı
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(18.0),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDDEEFA),
-                        borderRadius: BorderRadius.circular(20.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF181A18).withOpacity(0.1),
-                            blurRadius: 10.0,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          // Profil Resmi
-                          const CircleAvatar(
-                            radius: 50,
-                            backgroundColor: Color(0xFF89CFF0),
-                            child: Icon(
-                              Icons.person,
-                              size: 70,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          // Kullanıcı Adı
-                          Text(
-                            userData['name'] ?? 'Kullanıcı Adı',
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF181A18),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          // Kullanıcı E-postası
-                          Text(
-                            userData['email'] ?? 'E-posta',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          // Bilgiler
-                          _buildInfoTile(
-                            icon: Icons.phone,
-                            title: 'Telefon',
-                            value: userData['phone'] ?? 'Telefon',
-                          ),
-                          const SizedBox(height: 14),
-                          _buildInfoTile(
-                            icon: Icons.location_on,
-                            title: 'Adres',
-                            value: userData['address'] ?? 'Adres',
-                          ),
-                          const SizedBox(height: 14),
-                          _buildInfoTile(
-                            icon: Icons.date_range,
-                            title: 'Doğum Tarihi',
-                            value: userData['dob'] ?? 'Doğum Tarihi',
-                          ),
-                          const SizedBox(height: 14),
-                          _buildInfoTile(
-                            icon: Icons.work,
-                            title: 'Meslek',
-                            value: userData['occupation'] ?? 'Meslek',
-                          ),
-                        ],
+            return Stack(
+              children: [
+                Center(
+                  child: Container(), // Ekran ortası boş kaldı
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: GestureDetector(
+                    onTap: () {
+                      // Profil resmine tıklandığında pop-up açma
+                      _showProfileDialog(context, userData);
+                    },
+                    child: const CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Color(0xFF89CFF0),
+                      child: Icon(
+                        Icons.person,
+                        size: 70,
+                        color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 30),
-                    // Çıkış Yap Butonu
-                    SizedBox(
-                      width: 200, // Buton genişliği küçültüldü
-                      child: ElevatedButton(
-                        onPressed: () => _signOut(context),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // Profil detaylarını içeren pop-up
+  void _showProfileDialog(BuildContext context, Map<String, dynamic> userData) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      // Profil Resmi
+                      const CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Color(0xFF89CFF0),
+                        child: Icon(
+                          Icons.person,
+                          size: 70,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Kullanıcı Adı
+                      Text(
+                        userData['name'] ?? 'Kullanıcı Adı',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF181A18),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Kullanıcı E-postası
+                      Text(
+                        userData['email'] ?? 'E-posta',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Bilgiler
+                      _buildInfoTile(
+                        icon: Icons.phone,
+                        title: 'Telefon',
+                        value: userData['phone'] ?? 'Telefon',
+                      ),
+                      const SizedBox(height: 14),
+                      _buildInfoTile(
+                        icon: Icons.location_on,
+                        title: 'Adres',
+                        value: userData['address'] ?? 'Adres',
+                      ),
+                      const SizedBox(height: 14),
+                      _buildInfoTile(
+                        icon: Icons.date_range,
+                        title: 'Doğum Tarihi',
+                        value: userData['dob'] ?? 'Doğum Tarihi',
+                      ),
+                      const SizedBox(height: 14),
+                      _buildInfoTile(
+                        icon: Icons.work,
+                        title: 'Meslek',
+                        value: userData['occupation'] ?? 'Meslek',
+                      ),
+                      const SizedBox(height: 20),
+                      // Çıkış Yap Butonu
+                      ElevatedButton(
+                        onPressed: () {
+                          _signOut(context); // Çıkış yapma
+                          Navigator.of(context).pop(); // Pop-up kapatma
+                        },
                         style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.all<Color>(
+                          backgroundColor: MaterialStateProperty.all<Color>(
                               const Color(0xFF6CAEED)),
-                          padding: WidgetStateProperty.all<EdgeInsets>(
+                          padding: MaterialStateProperty.all<EdgeInsets>(
                               const EdgeInsets.symmetric(
                                   vertical: 8, horizontal: 20)),
                           shape:
-                              WidgetStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          )),
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
                         ),
                         child: const Text(
                           'ÇIKIŞ YAP',
                           style: TextStyle(color: Colors.white, fontSize: 14),
                         ),
                       ),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.close,
+                        size: 30,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Pop-up kapama
+                      },
                     ),
-                  ],
-                );
-              },
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
