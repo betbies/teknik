@@ -29,7 +29,6 @@ class _ShiftsPageState extends State<ShiftsPage> {
     String formattedDate =
         "${selectedDate.day}-${selectedDate.month}-${selectedDate.year}";
 
-    // Filter records by selected date
     List<Map<String, dynamic>> filteredRecords = checkedRecords.where((record) {
       DateTime timestamp = (record['timestamp'] as Timestamp).toDate();
       return timestamp.year == selectedDate.year &&
@@ -37,12 +36,10 @@ class _ShiftsPageState extends State<ShiftsPage> {
           timestamp.day == selectedDate.day;
     }).toList();
 
-    // Create lists for each shift
     Map<String, List<Map<String, dynamic>>> shiftC = {};
     Map<String, List<Map<String, dynamic>>> shiftA = {};
     Map<String, List<Map<String, dynamic>>> shiftB = {};
 
-    // Group records by shift and machine name
     filteredRecords.forEach((record) {
       DateTime timestamp = (record['timestamp'] as Timestamp).toDate();
       String machineName = record['machine_name'];
@@ -63,46 +60,62 @@ class _ShiftsPageState extends State<ShiftsPage> {
       }
     });
 
-    // Create details widget for shifts
-    List<Widget> detailsWidgets = [];
-
-    void appendShiftDetails(String shiftName, Color color,
+    Widget buildShiftCard(String shiftName, IconData icon, Color color,
         Map<String, List<Map<String, dynamic>>> shiftData) {
-      if (shiftData.isNotEmpty) {
-        detailsWidgets.add(
-          Text(
-            shiftName,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        );
-        shiftData.forEach((machineName, records) {
-          detailsWidgets.add(Text(
-            machineName,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ));
-          records.forEach((record) {
-            detailsWidgets.add(Text(
-              "${record['user_name']} - ${record['time']}",
-              style: TextStyle(fontSize: 14),
-              textAlign: TextAlign.center,
-            ));
-          });
-          detailsWidgets
-              .add(Divider(color: Colors.grey)); // Divider for each machine
-        });
-      }
-    }
+      if (shiftData.isEmpty) return SizedBox.shrink();
 
-    // Append each shift's details in C, A, B order
-    appendShiftDetails("Shift C", Colors.red, shiftC);
-    appendShiftDetails("Shift A", Colors.green, shiftA);
-    appendShiftDetails("Shift B", Colors.blue, shiftB);
+      return Card(
+        margin: EdgeInsets.symmetric(vertical: 8),
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, color: color, size: 24),
+                  SizedBox(width: 8),
+                  Text(
+                    shiftName,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+              Divider(color: Colors.grey),
+              ...shiftData.entries.expand((entry) {
+                return [
+                  Text(
+                    entry.key,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                    textAlign: TextAlign.center,
+                  ),
+                  ...entry.value.map((record) {
+                    return Text(
+                      "${record['user_name']} - ${record['time']}",
+                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                      textAlign: TextAlign.center,
+                    );
+                  }),
+                  Divider(color: Colors.grey)
+                ];
+              }),
+            ],
+          ),
+        ),
+      );
+    }
 
     showDialog(
       context: context,
@@ -121,6 +134,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
               boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black26)],
             ),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
@@ -133,17 +147,25 @@ class _ShiftsPageState extends State<ShiftsPage> {
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 8),
-                Divider(color: Colors.grey), // Divider between date and content
+                Divider(color: Colors.grey),
                 SizedBox(height: 8),
                 Expanded(
                   child: SingleChildScrollView(
-                    child: detailsWidgets.isEmpty
-                        ? Center(
-                            child: Text('No data available for this date.'))
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: detailsWidgets,
-                          ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        buildShiftCard(
+                            "Shift C - Gece Vardiyası",
+                            Icons.nightlight_round,
+                            Colors.deepPurpleAccent,
+                            shiftC),
+                        buildShiftCard("Shift A - Gündüz Vardiyası",
+                            Icons.wb_sunny, Colors.orangeAccent, shiftA),
+                        buildShiftCard("Shift B - Akşam Vardiyası",
+                            Icons.brightness_3, Colors.blueAccent, shiftB),
+                      ],
+                    ),
                   ),
                 ),
                 SizedBox(height: 10),
