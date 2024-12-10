@@ -25,13 +25,49 @@ class _ShiftsPageState extends State<ShiftsPage> {
     fetchCheckedRecords(); // Kontrol kayıtlarını al
   }
 
+  void _showDateDetails(DateTime selectedDate) {
+    String formattedDate =
+        "${selectedDate.day}-${selectedDate.month}-${selectedDate.year}";
+
+    // Filter records by selected date
+    List<Map<String, dynamic>> filteredRecords = checkedRecords.where((record) {
+      DateTime timestamp = (record['timestamp'] as Timestamp).toDate();
+      return timestamp.year == selectedDate.year &&
+          timestamp.month == selectedDate.month &&
+          timestamp.day == selectedDate.day;
+    }).toList();
+
+    String details = filteredRecords.isEmpty
+        ? 'No data available for this date.'
+        : filteredRecords.map((record) {
+            DateTime timestamp = (record['timestamp'] as Timestamp).toDate();
+            return "${record['machine_name']} - ${record['user_name']} - ${timestamp.hour}:${timestamp.minute}";
+          }).join('\n');
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('$formattedDate'),
+          content: SingleChildScrollView(
+            child: Text(details),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> fetchCheckedRecords() async {
-    // Firestore'dan verileri çekme
     QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection('checked').get();
 
     setState(() {
-      // Zaman damgalarına göre sıralı olacak şekilde düzenleme yapıyoruz
       checkedRecords = snapshot.docs
           .map((doc) => doc.data() as Map<String, dynamic>)
           .toList()
@@ -321,12 +357,13 @@ class _ShiftsPageState extends State<ShiftsPage> {
                 ElevatedButton(
                   onPressed: () {
                     final selected = DateTime(year, month, day);
+                    _showDateDetails(
+                        selected); // Call the new function to show the details
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4), // Reduced padding
-                    textStyle:
-                        const TextStyle(fontSize: 12), // Smaller text size
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    textStyle: const TextStyle(fontSize: 12),
                   ),
                   child: const Text('Tarihe Git'),
                 ),
