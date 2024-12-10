@@ -79,14 +79,18 @@ class _ShiftsPageState extends State<ShiftsPage> {
                 children: [
                   Icon(icon, color: color, size: 24),
                   SizedBox(width: 8),
-                  Text(
-                    shiftName,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: color,
+                  Expanded(
+                    child: Text(
+                      shiftName,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.visible, // Alt satıra kaydırma
+                      maxLines: null, // Alt satıra kaydırma
                     ),
-                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -96,19 +100,24 @@ class _ShiftsPageState extends State<ShiftsPage> {
                   Text(
                     entry.key,
                     style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                     textAlign: TextAlign.center,
+                    overflow: TextOverflow.visible, // Alt satıra kaydırma
+                    maxLines: null, // Alt satıra kaydırma
                   ),
                   ...entry.value.map((record) {
                     return Text(
                       "${record['user_name']} - ${record['time']}",
                       style: TextStyle(fontSize: 14, color: Colors.black87),
                       textAlign: TextAlign.center,
+                      overflow: TextOverflow.visible, // Alt satıra kaydırma
+                      maxLines: null, // Alt satıra kaydırma
                     );
                   }),
-                  Divider(color: Colors.grey)
+                  Divider(color: Colors.grey),
                 ];
               }),
             ],
@@ -140,11 +149,14 @@ class _ShiftsPageState extends State<ShiftsPage> {
                 Text(
                   formattedDate,
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18, // Daha küçük yazı boyutu
+                    fontStyle: FontStyle.italic, // İtalik yazı stili
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue,
+                    color: Colors.black, // Siyah renk
                   ),
                   textAlign: TextAlign.center,
+                  overflow: TextOverflow.visible, // Alt satıra kaydırma
+                  maxLines: null, // Alt satıra kaydırma
                 ),
                 SizedBox(height: 8),
                 Divider(color: Colors.grey),
@@ -155,15 +167,12 @@ class _ShiftsPageState extends State<ShiftsPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        buildShiftCard(
-                            "Shift C - Gece Vardiyası",
-                            Icons.nightlight_round,
-                            Colors.deepPurpleAccent,
-                            shiftC),
-                        buildShiftCard("Shift A - Gündüz Vardiyası",
-                            Icons.wb_sunny, Colors.orangeAccent, shiftA),
-                        buildShiftCard("Shift B - Akşam Vardiyası",
-                            Icons.brightness_3, Colors.blueAccent, shiftB),
+                        buildShiftCard("Gece Vardiyası", Icons.nightlight_round,
+                            Colors.deepPurpleAccent, shiftC),
+                        buildShiftCard("Gündüz Vardiyası", Icons.wb_sunny,
+                            Colors.orangeAccent, shiftA),
+                        buildShiftCard("Akşam Vardiyası", Icons.brightness_3,
+                            Colors.blueAccent, shiftB),
                       ],
                     ),
                   ),
@@ -171,9 +180,9 @@ class _ShiftsPageState extends State<ShiftsPage> {
                 SizedBox(height: 10),
                 TextButton(
                   style: TextButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    foregroundColor: Colors.black, // Siyah yazı rengi
+                    padding: EdgeInsets.symmetric(
+                        vertical: 6, horizontal: 16), // Daha küçük boyut
                   ),
                   onPressed: () => Navigator.pop(context),
                   child: const Text('Close'),
