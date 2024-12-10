@@ -63,27 +63,46 @@ class _ShiftsPageState extends State<ShiftsPage> {
       }
     });
 
-    // Create details string for shifts
-    String details = '';
+    // Create details widget for shifts
+    List<Widget> detailsWidgets = [];
 
-    void appendShiftDetails(
-        String shiftName, Map<String, List<Map<String, dynamic>>> shiftData) {
+    void appendShiftDetails(String shiftName, Color color,
+        Map<String, List<Map<String, dynamic>>> shiftData) {
       if (shiftData.isNotEmpty) {
-        details += "$shiftName:\n";
+        detailsWidgets.add(
+          Text(
+            shiftName,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        );
         shiftData.forEach((machineName, records) {
-          details += "$machineName\n"; // Makine adını bir kez yaz
+          detailsWidgets.add(Text(
+            machineName,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ));
           records.forEach((record) {
-            details += "${record['user_name']} - ${record['time']}\n";
+            detailsWidgets.add(Text(
+              "${record['user_name']} - ${record['time']}",
+              style: TextStyle(fontSize: 14),
+              textAlign: TextAlign.center,
+            ));
           });
-          details += "----------\n"; // Divider for each machine
+          detailsWidgets
+              .add(Divider(color: Colors.grey)); // Divider for each machine
         });
       }
     }
 
     // Append each shift's details in C, A, B order
-    appendShiftDetails("Shift C", shiftC);
-    appendShiftDetails("Shift A", shiftA);
-    appendShiftDetails("Shift B", shiftB);
+    appendShiftDetails("Shift C", Colors.red, shiftC);
+    appendShiftDetails("Shift A", Colors.green, shiftA);
+    appendShiftDetails("Shift B", Colors.blue, shiftB);
 
     showDialog(
       context: context,
@@ -102,31 +121,28 @@ class _ShiftsPageState extends State<ShiftsPage> {
               boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black26)],
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   formattedDate,
                   style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 8),
                 Divider(color: Colors.grey), // Divider between date and content
                 SizedBox(height: 8),
                 Expanded(
                   child: SingleChildScrollView(
-                    child: details.isEmpty
+                    child: detailsWidgets.isEmpty
                         ? Center(
                             child: Text('No data available for this date.'))
                         : Column(
-                            children: [
-                              Text(
-                                details,
-                                style: TextStyle(fontSize: 14),
-                                textAlign: TextAlign.left,
-                              ),
-                            ],
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: detailsWidgets,
                           ),
                   ),
                 ),
