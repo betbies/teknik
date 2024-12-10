@@ -20,6 +20,8 @@ class _ScanPageState extends State<ScanPage> {
   Timer? _debounce;
   bool _isScanningAllowed = true;
   final Set<String> _activePopups = {}; // Açık olan pop-up'ları takip için
+  final MobileScannerController _controller = MobileScannerController();
+  bool _flashEnabled = false;
 
   Future<Map<String, dynamic>> _getUserData() async {
     User? user = _auth.currentUser;
@@ -325,9 +327,30 @@ class _ScanPageState extends State<ScanPage> {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20.0),
-            child: MobileScanner(
-              onDetect: _onDetectBarcode,
-              fit: BoxFit.cover,
+            child: Stack(
+              children: [
+                MobileScanner(
+                  onDetect: _onDetectBarcode,
+                  fit: BoxFit.cover,
+                  controller: _controller,
+                ),
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: IconButton(
+                    icon: Icon(
+                      _flashEnabled ? Icons.flash_on : Icons.flash_off,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _flashEnabled = !_flashEnabled;
+                        _controller.toggleTorch();
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         ),
