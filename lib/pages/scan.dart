@@ -124,6 +124,15 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
 
+  void _closeAllPopups() {
+    Navigator.of(context, rootNavigator: true)
+        .popUntil((route) => route.isFirst);
+    setState(() {
+      _popupShown = false;
+      _activePopups.clear(); // Tüm pop-up'ları listeden kaldır
+    });
+  }
+
   void _showPopup(
       BuildContext context, String docName, String machineName) async {
     // Eğer pop-up zaten gösteriliyorsa çıkış yap
@@ -216,12 +225,7 @@ class _ScanPageState extends State<ScanPage> {
                           ),
                           onPressed: () async {
                             await _addCheckedEntry(userName, machineName);
-                            Navigator.of(context, rootNavigator: true).pop();
-                            setState(() {
-                              _popupShown = false;
-                              _activePopups
-                                  .remove(machineName); // Pop-up kaldırıldı
-                            });
+                            _closeAllPopups(); // Burada tüm pop-up'ları kapatıyoruz
                           },
                           child: Center(
                             child: Text(
@@ -247,10 +251,7 @@ class _ScanPageState extends State<ScanPage> {
               style: TextButton.styleFrom(foregroundColor: Colors.black),
               child: const Text('Kapat'),
               onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _activePopups.remove(machineName); // Pop-up kaldırıldı
-                });
+                _closeAllPopups(); // Burada tüm pop-up'ları kapatıyoruz
               },
             ),
           ],
@@ -302,7 +303,7 @@ class _ScanPageState extends State<ScanPage> {
           _isScanningAllowed = false;
 
           // 5 saniyelik bekleme
-          Future.delayed(const Duration(seconds: 5), () {
+          Future.delayed(const Duration(seconds: 4), () {
             _isScanningAllowed = true;
           });
         }
