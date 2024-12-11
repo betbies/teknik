@@ -4,7 +4,7 @@ import 'pages/teams.dart';
 import 'pages/shifts.dart';
 import 'pages/scan.dart';
 import 'pages/malfunction.dart';
-import 'pages/profile.dart';
+import 'pages/machines.dart';
 import 'auth/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
     const ShiftsPage(),
     const ScanPage(),
     const MalfunctionPage(),
-    const ProfilePage(),
+    const MachinePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -111,7 +111,7 @@ class _HomePageState extends State<HomePage> {
           Icon(Icons.access_time, size: 30, color: Colors.white),
           Icon(Icons.qr_code_scanner, size: 30, color: Colors.white),
           Icon(Icons.warning, size: 30, color: Colors.white),
-          Icon(Icons.person, size: 30, color: Colors.white),
+          Icon(Icons.settings, size: 30, color: Colors.white),
         ],
         color: const Color(0xFF181A18),
         buttonBackgroundColor: const Color(0xFF6CAEED),
