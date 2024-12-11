@@ -40,7 +40,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
     Map<String, List<Map<String, dynamic>>> shiftA = {};
     Map<String, List<Map<String, dynamic>>> shiftB = {};
 
-    filteredRecords.forEach((record) {
+    for (var record in filteredRecords) {
       DateTime timestamp = (record['timestamp'] as Timestamp).toDate();
       String machineName = record['machine_name'];
       String userName = record['user_name'];
@@ -58,18 +58,18 @@ class _ShiftsPageState extends State<ShiftsPage> {
         shiftB[machineName] = (shiftB[machineName] ?? [])
           ..add({'user_name': userName, 'time': time});
       }
-    });
+    }
 
     Widget buildShiftCard(String shiftName, IconData icon, Color color,
         Map<String, List<Map<String, dynamic>>> shiftData) {
-      if (shiftData.isEmpty) return SizedBox.shrink();
+      if (shiftData.isEmpty) return const SizedBox.shrink();
 
       return Card(
-        margin: EdgeInsets.symmetric(vertical: 8),
+        margin: const EdgeInsets.symmetric(vertical: 8),
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -78,7 +78,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(icon, color: color, size: 24),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       shiftName,
@@ -94,12 +94,12 @@ class _ShiftsPageState extends State<ShiftsPage> {
                   ),
                 ],
               ),
-              Divider(color: Colors.grey),
+              const Divider(color: Colors.grey),
               ...shiftData.entries.expand((entry) {
                 return [
                   Text(
                     entry.key,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -111,13 +111,14 @@ class _ShiftsPageState extends State<ShiftsPage> {
                   ...entry.value.map((record) {
                     return Text(
                       "${record['user_name']} - ${record['time']}",
-                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.black87),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.visible, // Alt satıra kaydırma
                       maxLines: null, // Alt satıra kaydırma
                     );
                   }),
-                  Divider(color: Colors.grey),
+                  const Divider(color: Colors.grey),
                 ];
               }),
             ],
@@ -130,14 +131,14 @@ class _ShiftsPageState extends State<ShiftsPage> {
       context: context,
       builder: (context) {
         return Dialog(
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
           child: Container(
             width: 350,
             height: 500,
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.all(Radius.circular(20)),
               boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black26)],
@@ -148,7 +149,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
               children: [
                 Text(
                   formattedDate,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18, // Daha küçük yazı boyutu
                     fontStyle: FontStyle.italic, // İtalik yazı stili
                     fontWeight: FontWeight.bold,
@@ -158,9 +159,9 @@ class _ShiftsPageState extends State<ShiftsPage> {
                   overflow: TextOverflow.visible, // Alt satıra kaydırma
                   maxLines: null, // Alt satıra kaydırma
                 ),
-                SizedBox(height: 8),
-                Divider(color: Colors.grey),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
+                const Divider(color: Colors.grey),
+                const SizedBox(height: 8),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -177,11 +178,11 @@ class _ShiftsPageState extends State<ShiftsPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 TextButton(
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.black, // Siyah yazı rengi
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                         vertical: 6, horizontal: 16), // Daha küçük boyut
                   ),
                   onPressed: () => Navigator.pop(context),
@@ -201,41 +202,42 @@ class _ShiftsPageState extends State<ShiftsPage> {
       children: [
         Text(
           shiftName,
-          style: TextStyle(
+          style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Colors.deepPurple),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         ...shiftDetails.map((detail) {
           var parts = detail.split('\n');
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Container(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Colors.lightBlueAccent,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.settings, color: Colors.white),
-                  SizedBox(width: 10),
+                  const Icon(Icons.settings, color: Colors.white),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           parts[0], // Machine Name
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: Colors.white),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
-                          '${parts[1]}', // User and Time
-                          style: TextStyle(fontSize: 12, color: Colors.white),
+                          parts[1], // User and Time
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.white),
                         ),
                       ],
                     ),
@@ -244,8 +246,8 @@ class _ShiftsPageState extends State<ShiftsPage> {
               ),
             ),
           );
-        }).toList(),
-        Divider(color: Colors.grey), // Divider between shifts
+        }),
+        const Divider(color: Colors.grey), // Divider between shifts
       ],
     );
   }

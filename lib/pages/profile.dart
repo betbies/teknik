@@ -162,13 +162,13 @@ class ProfilePage extends StatelessWidget {
                           Navigator.of(context).pop(); // Pop-up kapatma
                         },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
+                          backgroundColor: WidgetStateProperty.all<Color>(
                               const Color(0xFF6CAEED)),
-                          padding: MaterialStateProperty.all<EdgeInsets>(
+                          padding: WidgetStateProperty.all<EdgeInsets>(
                               const EdgeInsets.symmetric(
                                   vertical: 8, horizontal: 20)),
                           shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                              WidgetStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
