@@ -90,27 +90,46 @@ class MachinePage extends StatelessWidget {
     BuildContext context, {
     required String machine,
   }) {
-    return GestureDetector(
-      onTap: () => _showMachineDetails(context, machine),
-      child: Container(
-        padding: const EdgeInsets.all(12.0),
-        margin: const EdgeInsets.symmetric(vertical: 8.0),
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: ListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(
-            machine,
-            textAlign: TextAlign.center, // Burada makine adını ortalıyoruz
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+    return FutureBuilder<QuerySnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('checked')
+          .where('machine_name', isEqualTo: machine)
+          .orderBy('timestamp', descending: true)
+          .limit(1)
+          .get(),
+      builder: (context, snapshot) {
+        bool isChecked = false;
+
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData &&
+            snapshot.data!.docs.isNotEmpty) {
+          isChecked = true; // Makine kontrol edilmiş
+        }
+
+        return GestureDetector(
+          onTap: () => _showMachineDetails(context, machine),
+          child: Container(
+            height: 60.0, // Sabit yükseklik
+            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            decoration: BoxDecoration(
+              color: isChecked
+                  ? Colors.green.withOpacity(0.5) // Kontrol edilmişse yeşil
+                  : Colors.grey[200], // Kontrol edilmemişse gri
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Center(
+              child: Text(
+                machine,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -120,9 +139,8 @@ class MachinePage extends StatelessWidget {
       var querySnapshot = await FirebaseFirestore.instance
           .collection('checked')
           .where('machine_name', isEqualTo: machineName)
-          .orderBy('timestamp',
-              descending: true) // En son kontrol edilenleri alıyoruz
-          .limit(1) // Sadece birini almak yeterli
+          .orderBy('timestamp', descending: true)
+          .limit(1)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
@@ -143,17 +161,19 @@ class MachinePage extends StatelessWidget {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: Center(child: Text('$machineName')),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Center(
-                    child: Text(
+              title: Center(child: Text(machineName)),
+              content: SizedBox(
+                width: 300, // Sabit genişlik
+                height: 150, // Sabit yükseklik
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
                       'En Son Kontrol:\n${timestamp != null ? '${timestamp.toLocal()}'.split(' ')[0] : 'Bilinmiyor'} $time\n$userName',
-                      textAlign: TextAlign.center, // Metni ortalıyoruz
+                      textAlign: TextAlign.center,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
@@ -172,8 +192,13 @@ class MachinePage extends StatelessWidget {
           builder: (context) {
             return AlertDialog(
               title: Center(child: Text('Makine: $machineName')),
-              content: Center(
-                child: const Text('Bu makine hakkında bilgi bulunmamaktadır.'),
+              content: SizedBox(
+                width: 300, // Sabit genişlik
+                height: 100, // Sabit yükseklik
+                child: Center(
+                  child:
+                      const Text('Bu makine hakkında bilgi bulunmamaktadır.'),
+                ),
               ),
               actions: [
                 TextButton(
