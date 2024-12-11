@@ -55,11 +55,17 @@ class MachinePage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: machines.length,
-                      itemBuilder: (context, machineIndex) {
+                    // ExpansionTile ekleyerek makineleri açıp kapatabilirsin
+                    ExpansionTile(
+                      title: Text(
+                        'Makineler',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      children: List.generate(machines.length, (machineIndex) {
                         var machine = machines[machineIndex];
                         String machineName =
                             machine['machineName'] ?? 'Bilinmiyor';
@@ -68,7 +74,7 @@ class MachinePage extends StatelessWidget {
                           context,
                           machine: machineName,
                         );
-                      },
+                      }),
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -96,6 +102,7 @@ class MachinePage extends StatelessWidget {
         contentPadding: EdgeInsets.zero,
         title: Text(
           machine,
+          textAlign: TextAlign.center, // Burada makine adını ortalıyoruz
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
