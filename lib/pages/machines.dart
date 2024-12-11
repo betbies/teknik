@@ -55,7 +55,6 @@ class MachinePage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // ExpansionTile ekleyerek makineleri açıp kapatabilirsin
                     ExpansionTile(
                       title: Text(
                         'Makineler',
@@ -91,24 +90,105 @@ class MachinePage extends StatelessWidget {
     BuildContext context, {
     required String machine,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(12.0),
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        title: Text(
-          machine,
-          textAlign: TextAlign.center, // Burada makine adını ortalıyoruz
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () => _showMachineDetails(context, machine),
+      child: Container(
+        padding: const EdgeInsets.all(12.0),
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(
+            machine,
+            textAlign: TextAlign.center, // Burada makine adını ortalıyoruz
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _showMachineDetails(
+      BuildContext context, String machineName) async {
+    try {
+      var querySnapshot = await FirebaseFirestore.instance
+          .collection('checked')
+          .where('machine_name', isEqualTo: machineName)
+          .orderBy('timestamp',
+              descending: true) // En son kontrol edilenleri alıyoruz
+          .limit(1) // Sadece birini almak yeterli
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        var checkedDoc =
+            querySnapshot.docs.first.data() as Map<String, dynamic>;
+        var timestamp = checkedDoc['timestamp']?.toDate();
+        var userName = checkedDoc['user_name'] ?? 'Bilinmiyor';
+
+        // Saat ve dakika formatlama
+        String formattedHour =
+            timestamp?.hour.toString().padLeft(2, '0') ?? '00';
+        String formattedMinute =
+            timestamp?.minute.toString().padLeft(2, '0') ?? '00';
+        String time = "$formattedHour:$formattedMinute";
+
+        // Detayları gösteren bir dialog açıyoruz
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Center(child: Text('$machineName')),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: Text(
+                      'En Son Kontrol:\n${timestamp != null ? '${timestamp.toLocal()}'.split(' ')[0] : 'Bilinmiyor'} $time\n$userName',
+                      textAlign: TextAlign.center, // Metni ortalıyoruz
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Kapat'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Center(child: Text('Makine: $machineName')),
+              content: Center(
+                child: const Text('Bu makine hakkında bilgi bulunmamaktadır.'),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Kapat'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print("Error fetching machine details: $e");
+    }
   }
 }
