@@ -56,9 +56,9 @@ class MachinePage extends StatelessWidget {
                       ),
                     ),
                     ExpansionTile(
-                      title: Text(
+                      title: const Text(
                         'Makineler',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
@@ -144,8 +144,7 @@ class MachinePage extends StatelessWidget {
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        var checkedDoc =
-            querySnapshot.docs.first.data() as Map<String, dynamic>;
+        var checkedDoc = querySnapshot.docs.first.data();
         var timestamp = checkedDoc['timestamp']?.toDate();
         var userName = checkedDoc['user_name'] ?? 'Bilinmiyor';
 
@@ -191,13 +190,12 @@ class MachinePage extends StatelessWidget {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: Center(child: Text('Makine: $machineName')),
-              content: SizedBox(
+              title: Center(child: Text(machineName)),
+              content: const SizedBox(
                 width: 300, // Sabit genişlik
                 height: 100, // Sabit yükseklik
                 child: Center(
-                  child:
-                      const Text('Bu makine hakkında bilgi bulunmamaktadır.'),
+                  child: Text('Bu makine hakkında bilgi bulunmamaktadır.'),
                 ),
               ),
               actions: [

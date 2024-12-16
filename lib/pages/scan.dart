@@ -46,11 +46,37 @@ class _ScanPageState extends State<ScanPage> {
 
   Future<void> _addCheckedEntry(String userName, String machineName) async {
     final now = Timestamp.now();
+    final checkedSnapshot = await _firestore
+        .collection('checked')
+        .where('machine_name', isEqualTo: machineName)
+        .orderBy('timestamp', descending: true)
+        .limit(1)
+        .get();
+
+    if (checkedSnapshot.docs.isNotEmpty) {
+      final lastChecked = checkedSnapshot.docs.first;
+      final lastCheckedTimestamp = lastChecked['timestamp'] as Timestamp;
+      final lastCheckedTime = lastCheckedTimestamp.toDate();
+
+      // 30 dakika kontrol süresi
+      final thirtyMinutesAgo = DateTime.now().subtract(Duration(minutes: 30));
+
+      if (lastCheckedTime.isAfter(thirtyMinutesAgo)) {
+        // Eğer son kontrol 30 dakika içinde yapılmışsa, uyarı ver
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bu makineyi zaten kontrol ettiniz!')),
+        );
+        return;
+      }
+    }
+
+    // Eğer 30 dakika geçmişse, kontrol işlemini ekle
     await _firestore.collection('checked').add({
       'user_name': userName,
       'machine_name': machineName,
       'timestamp': now,
     });
+    _closeAllPopups(); // Pop-up'ları kapatıyoruz
   }
 
   void _showErrorPopup(BuildContext context, String machineName) {
