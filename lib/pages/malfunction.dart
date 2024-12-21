@@ -201,20 +201,30 @@ class MalfunctionPage extends StatelessWidget {
                         const SizedBox(height: 4),
                         // Buradaki imagePath yerine imageUrl ekliyoruz
                         if (imagePath.isNotEmpty)
-                          Image.file(
-                            File(imagePath),
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
+                          GestureDetector(
+                            onTap: () {
+                              _showFullImage(context, File(imagePath));
+                            },
+                            child: Image.file(
+                              File(imagePath),
+                              height: 200,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         const SizedBox(height: 4),
                         // Eğer image_url varsa, bunu da göstereceğiz
                         if (imagePath.isEmpty && imageUrl.isNotEmpty)
-                          Image.network(
-                            imageUrl, // Firestore'dan gelen URL
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
+                          GestureDetector(
+                            onTap: () {
+                              _showFullImage(context, imageUrl);
+                            },
+                            child: Image.network(
+                              imageUrl, // Firestore'dan gelen URL
+                              height: 200,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         const SizedBox(height: 4),
                         Row(
@@ -265,6 +275,60 @@ class MalfunctionPage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  void _showFullImage(BuildContext context, dynamic image) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          insetPadding: EdgeInsets.zero, // Marginleri kaldırıyoruz
+          backgroundColor: Colors.transparent, // Arka planı şeffaf yapıyoruz
+          child: GestureDetector(
+            onTap: () {
+              Navigator.pop(context); // Resme tıklanarak dialog'dan çıkılıyor
+            },
+            child: Stack(
+              children: [
+                // Saydam siyah arka plan
+                Container(
+                  color: Colors.black.withOpacity(
+                      0.7), // Arka planı siyah ve %70 saydam yapıyoruz
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
+                Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                        0), // Resmin köşelerini yuvarlatmadan tam şekilde gösteriyoruz
+                    child: InteractiveViewer(
+                      panEnabled: true, // Pan hareketine izin veriyoruz
+                      scaleEnabled:
+                          true, // Yakınlaştırma/uzaklaştırma işlemlerine izin veriyoruz
+                      child: image is File
+                          ? Image.file(
+                              image,
+                              fit: BoxFit
+                                  .contain, // Resmi orijinal boyutlarında, tam olarak ekrana sığacak şekilde gösteriyoruz
+                              width: double.infinity,
+                              height: double.infinity,
+                            )
+                          : Image.network(
+                              image,
+                              fit: BoxFit
+                                  .contain, // Resmi orijinal boyutlarında, tam olarak ekrana sığacak şekilde gösteriyoruz
+                              width: double.infinity,
+                              height: double.infinity,
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
