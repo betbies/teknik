@@ -57,6 +57,8 @@ class MalfunctionPage extends StatelessWidget {
                 String formattedDate =
                     DateFormat('dd/MM/yyyy').format(dateTime);
                 String formattedTime = DateFormat('HH:mm').format(dateTime);
+                String imageUrl = malfunctionData['image_url'] ??
+                    ''; // 'image_url' Firestore'dan gelen URL alanı
 
                 return Column(
                   children: [
@@ -68,6 +70,7 @@ class MalfunctionPage extends StatelessWidget {
                       date: formattedDate,
                       time: formattedTime,
                       imagePath: imagePath,
+                      imageUrl: imageUrl, // Add this line
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -87,7 +90,8 @@ class MalfunctionPage extends StatelessWidget {
     required String description,
     required String date,
     required String time,
-    required String imagePath,
+    required String imagePath, // Bu kısmı değiştireceğiz
+    required String imageUrl, // Bu satırı ekledik
   }) {
     final random = Random();
     final randomAngle = (random.nextDouble() - 0.5) * 0.05;
@@ -195,9 +199,19 @@ class MalfunctionPage extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 4),
+                        // Buradaki imagePath yerine imageUrl ekliyoruz
                         if (imagePath.isNotEmpty)
                           Image.file(
                             File(imagePath),
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        const SizedBox(height: 4),
+                        // Eğer image_url varsa, bunu da göstereceğiz
+                        if (imagePath.isEmpty && imageUrl.isNotEmpty)
+                          Image.network(
+                            imageUrl, // Firestore'dan gelen URL
                             height: 200,
                             width: double.infinity,
                             fit: BoxFit.cover,
