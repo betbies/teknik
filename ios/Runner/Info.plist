@@ -29,6 +29,13 @@
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>
+	<key>NSCameraUsageDescription</key>
+<string>Kamera kullanımına izin ver.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Fotoğraf galerisine erişim izni.</string>
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>Fotoğraf galerisine fotoğraf eklemek için izin ver.</string>
+
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>

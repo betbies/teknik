@@ -4,6 +4,9 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class ScanPage extends StatefulWidget {
   const ScanPage({super.key});
@@ -22,6 +25,7 @@ class _ScanPageState extends State<ScanPage> {
   final Set<String> _activePopups = {}; // Açık olan pop-up'ları takip için
   final MobileScannerController _controller = MobileScannerController();
   bool _flashEnabled = false;
+  File? _imageFile; // Fotoğrafı tutacak değişken
 
   Future<Map<String, dynamic>> _getUserData() async {
     User? user = _auth.currentUser;
@@ -36,12 +40,41 @@ class _ScanPageState extends State<ScanPage> {
   Future<void> _addErrorEntry(
       String userName, String machineName, String error) async {
     final now = Timestamp.now();
+    String? imageUrl = await _uploadImage(); // Fotoğrafı yükle ve URL'yi al
+
     await _firestore.collection('error').add({
       'user_name': userName,
       'machine_name': machineName,
       'timestamp': now,
       'error': error,
+      'image_url': imageUrl ?? '', // Fotoğrafın URL'sini döndürür
     });
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<String?> _uploadImage() async {
+    if (_imageFile == null) return null;
+    try {
+      final storageRef = FirebaseStorage.instance.ref();
+      final imageRef = storageRef
+          .child('errors/${DateTime.now().millisecondsSinceEpoch}.jpg');
+      await imageRef.putFile(_imageFile!);
+      String downloadUrl = await imageRef.getDownloadURL();
+      return downloadUrl; // Fotoğrafın URL'sini döndürür
+    } catch (e) {
+      print("Fotoğraf yüklenirken hata oluştu: $e");
+      return null;
+    }
   }
 
   Future<void> _addCheckedEntry(String userName, String machineName) async {
@@ -90,7 +123,7 @@ class _ScanPageState extends State<ScanPage> {
           actionsPadding: const EdgeInsets.only(bottom: 4),
           content: SizedBox(
             width: 200,
-            height: 200,
+            height: 300, // Popup boyutunu ayarlayalım
             child: Column(
               children: [
                 const Center(
@@ -113,6 +146,10 @@ class _ScanPageState extends State<ScanPage> {
                     maxLines: 3,
                   ),
                 ),
+                IconButton(
+                  icon: Icon(Icons.camera_alt, size: 40), // Kamera ikonu
+                  onPressed: _pickImage, // Kamera açma
+                ),
               ],
             ),
           ),
@@ -132,7 +169,7 @@ class _ScanPageState extends State<ScanPage> {
               child: const Text('Gönder'),
               onPressed: () {
                 final error = _errorController.text;
-                if (error.isNotEmpty) {
+                if (error.isNotEmpty && _imageFile != null) {
                   _getUserData().then((userData) {
                     String userName = userData['name'] ?? 'Unknown';
                     _addErrorEntry(userName, machineName, error);

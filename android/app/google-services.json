@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "889356957852",
     "project_id": "teknik-b",
-    "storage_bucket": "teknik-b.appspot.com"
+    "storage_bucket": "teknik-b.firebasestorage.app"
   },
   "client": [
     {
