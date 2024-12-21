@@ -47,7 +47,7 @@ class _ScanPageState extends State<ScanPage> {
       'machine_name': machineName,
       'timestamp': now,
       'error': error,
-      'image_url': imageUrl ?? '', // Fotoğrafın URL'sini döndürür
+      'image_url': imageUrl ?? '', // Fotoğraf yoksa boş string atıyoruz
     });
   }
 
@@ -169,7 +169,7 @@ class _ScanPageState extends State<ScanPage> {
               child: const Text('Gönder'),
               onPressed: () {
                 final error = _errorController.text;
-                if (error.isNotEmpty && _imageFile != null) {
+                if (error.isNotEmpty) {
                   _getUserData().then((userData) {
                     String userName = userData['name'] ?? 'Unknown';
                     _addErrorEntry(userName, machineName, error);
@@ -180,7 +180,7 @@ class _ScanPageState extends State<ScanPage> {
                   });
                 }
               },
-            ),
+            )
           ],
         );
       },
