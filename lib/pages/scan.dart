@@ -288,10 +288,16 @@ class _ScanPageState extends State<ScanPage> {
                             elevation: 0,
                           ),
                           onPressed: () async {
+                            // Eğer makine adı 'su deposu' içeriyorsa % değer için pop-up aç
                             if (machineName
                                 .toLowerCase()
                                 .contains('su deposu')) {
                               _showFillLevelPopup(context, machineName);
+                            }
+                            // Eğer makine adı '+' veya '-' içeriyorsa derece için pop-up aç
+                            else if (machineName.contains('+') ||
+                                machineName.contains('-')) {
+                              _showTemperaturePopup(context, machineName);
                             } else {
                               await _addCheckedEntry(userName, machineName);
                               _closeAllPopups(); // Pop-up'ları kapatıyoruz
@@ -330,6 +336,95 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
 
+  // Derece girmesi için pop-up gösterme fonksiyonu
+  void _showTemperaturePopup(BuildContext context, String machineName) async {
+    final TextEditingController _temperatureController =
+        TextEditingController();
+
+    // Check if the machine has already been checked in the last 30 minutes
+    final checkedSnapshot = await _firestore
+        .collection('checked')
+        .where('machine_name', isEqualTo: machineName)
+        .orderBy('timestamp', descending: true)
+        .limit(1)
+        .get();
+
+    if (checkedSnapshot.docs.isNotEmpty) {
+      final lastChecked = checkedSnapshot.docs.first;
+      final lastCheckedTimestamp = lastChecked['timestamp'] as Timestamp;
+      final lastCheckedTime = lastCheckedTimestamp.toDate();
+
+      // 30 dakika kontrol süresi
+      final thirtyMinutesAgo =
+          DateTime.now().subtract(const Duration(minutes: 30));
+
+      if (lastCheckedTime.isAfter(thirtyMinutesAgo)) {
+        // Eğer son kontrol 30 dakika içinde yapılmışsa, uyarı ver
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bu makineyi zaten kontrol ettiniz!')),
+        );
+        _closeAllPopups(); // Pop-up'ları kapatıyoruz
+        return;
+      }
+    }
+
+    // Eğer 30 dakika geçmişse, derece popup'ını göster
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Lütfen makine derecesini giriniz (°C):',
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _temperatureController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('İptal'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final temperature = _temperatureController.text;
+                if (temperature.isNotEmpty) {
+                  final userData = await _getUserData();
+                  String userName = userData['name'] ?? 'Unknown';
+                  await _firestore.collection('checked').add({
+                    'user_name': userName,
+                    'machine_name': machineName,
+                    'timestamp': Timestamp.now(),
+                    'temperature':
+                        double.tryParse(temperature) ?? 0.0, // Derece
+                  });
+                  Navigator.of(context).pop();
+                  _closeAllPopups(); // Pop-up'ları kapatıyoruz
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Derece kaydedildi!')),
+                  );
+                }
+              },
+              child: const Text('Gönder'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showFillLevelPopup(BuildContext context, String machineName) async {
     final TextEditingController _fillLevelController = TextEditingController();
 
@@ -356,7 +451,7 @@ class _ScanPageState extends State<ScanPage> {
           const SnackBar(content: Text('Bu makineyi zaten kontrol ettiniz!')),
         );
         _closeAllPopups(); // Pop-up'ları kapatıyoruz
-        return; // İleri gitmesin
+        return;
       }
     }
 
