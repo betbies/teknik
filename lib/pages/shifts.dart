@@ -576,6 +576,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
       DateTime timestamp = (record['timestamp'] as Timestamp).toDate();
       String machineName = record['machine_name'];
       String userName = record['user_name'];
+      int fillLevel = record['fill_level'] ?? 0; // Doluluk oranı ekleyin
 
       // Aynı gün veya belirli gün için kontrol kayıtlarını al
       if (timestamp.year == now.year &&
@@ -589,6 +590,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
             machineGroup[machineName]!.add({
               'userName': userName,
               'timestamp': timestamp,
+              'fillLevel': fillLevel, // fill_level ekleniyor
             });
           } else {
             // İlk defa kontrol edilen makineyi gruba ekle
@@ -596,6 +598,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
               {
                 'userName': userName,
                 'timestamp': timestamp,
+                'fillLevel': fillLevel, // fill_level ekleniyor
               }
             ];
           }
@@ -607,10 +610,13 @@ class _ShiftsPageState extends State<ShiftsPage> {
     machineGroup.forEach((machineName, records) {
       details += "$machineName\n"; // Makine adını bir kez yaz
 
-      // Kontrol eden kullanıcıları ve zamanları alt alta ekle
+      // Kontrol eden kullanıcıları, zamanı ve fill_level'ı alt alta ekle
       for (var record in records) {
+        String fillLevelText = record['fillLevel'] != 0
+            ? " - %${record['fillLevel']}"
+            : ""; // fill_level önce % işaretiyle
         details +=
-            "${record['userName']} - ${record['timestamp'].hour.toString().padLeft(2, '0')}:${record['timestamp'].minute.toString().padLeft(2, '0')}\n";
+            "${record['userName']} - ${record['timestamp'].hour.toString().padLeft(2, '0')}:${record['timestamp'].minute.toString().padLeft(2, '0')}$fillLevelText\n";
       }
 
       details += "----------\n"; // Kayıtlar arasında çizgi ekle
