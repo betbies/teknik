@@ -377,8 +377,8 @@ class _ScanPageState extends State<ScanPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Lütfen makine derecesini giriniz (°C):',
-                style: const TextStyle(fontSize: 16),
+                'Lütfen makine derecesini giriniz (°C):\n(Derece girerken , yerine . kullanınız)',
+                style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 10),
               TextField(

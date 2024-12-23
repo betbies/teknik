@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore'u kullanabilmek için ekliyoruz.
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ShiftsPage extends StatefulWidget {
   const ShiftsPage({super.key});
@@ -577,6 +577,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
       String machineName = record['machine_name'];
       String userName = record['user_name'];
       int fillLevel = record['fill_level'] ?? 0; // Doluluk oranı ekleyin
+      double temperature = record['temperature'] ?? 0.0; // Dereceyi ekleyin
 
       // Aynı gün veya belirli gün için kontrol kayıtlarını al
       if (timestamp.year == now.year &&
@@ -591,6 +592,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
               'userName': userName,
               'timestamp': timestamp,
               'fillLevel': fillLevel, // fill_level ekleniyor
+              'temperature': temperature, // Derece ekleniyor
             });
           } else {
             // İlk defa kontrol edilen makineyi gruba ekle
@@ -599,6 +601,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
                 'userName': userName,
                 'timestamp': timestamp,
                 'fillLevel': fillLevel, // fill_level ekleniyor
+                'temperature': temperature, // Derece ekleniyor
               }
             ];
           }
@@ -610,13 +613,16 @@ class _ShiftsPageState extends State<ShiftsPage> {
     machineGroup.forEach((machineName, records) {
       details += "$machineName\n"; // Makine adını bir kez yaz
 
-      // Kontrol eden kullanıcıları, zamanı ve fill_level'ı alt alta ekle
+      // Kontrol eden kullanıcıları, zamanı, fill_level'ı ve temperature'ı alt alta ekle
       for (var record in records) {
         String fillLevelText = record['fillLevel'] != 0
-            ? " - %${record['fillLevel']}"
-            : ""; // fill_level önce % işaretiyle
+            ? "\n%${record['fillLevel']}"
+            : ""; // fill_level alt satıra eklenir
+        String temperatureText = record['temperature'] != 0.0
+            ? "\n${record['temperature']}°C"
+            : ""; // temperature alt satıra eklenir
         details +=
-            "${record['userName']} - ${record['timestamp'].hour.toString().padLeft(2, '0')}:${record['timestamp'].minute.toString().padLeft(2, '0')}$fillLevelText\n";
+            "${record['userName']} - ${record['timestamp'].hour.toString().padLeft(2, '0')}:${record['timestamp'].minute.toString().padLeft(2, '0')}$fillLevelText$temperatureText\n";
       }
 
       details += "----------\n"; // Kayıtlar arasında çizgi ekle

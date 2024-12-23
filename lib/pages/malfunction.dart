@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 import 'dart:io';
+import 'package:google_fonts/google_fonts.dart';
 
 class MalfunctionPage extends StatelessWidget {
   const MalfunctionPage({super.key});
@@ -141,7 +142,7 @@ class MalfunctionPage extends StatelessWidget {
                         const Icon(
                           Icons.person,
                           size: 24,
-                          color: Colors.black,
+                          color: Colors.black54,
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -149,7 +150,7 @@ class MalfunctionPage extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            color: Colors.black54,
                           ),
                         ),
                       ],
@@ -162,16 +163,16 @@ class MalfunctionPage extends StatelessWidget {
                             const Icon(
                               Icons.location_on,
                               size: 20,
-                              color: Colors.black54,
+                              color: Colors.black,
                             ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 machine,
-                                style: const TextStyle(
+                                style: GoogleFonts.poppins(
                                   fontSize: 16,
                                   fontStyle: FontStyle.italic,
-                                  color: Colors.black54,
+                                  color: Colors.black,
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
@@ -190,9 +191,9 @@ class MalfunctionPage extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 description,
-                                style: const TextStyle(
+                                style: GoogleFonts.nunito(
                                   fontSize: 17,
-                                  color: Colors.black54,
+                                  color: Colors.black87,
                                 ),
                               ),
                             ),
