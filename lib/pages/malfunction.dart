@@ -161,7 +161,7 @@ class MalfunctionPage extends StatelessWidget {
                           children: [
                             const Icon(
                               Icons.location_on,
-                              size: 16,
+                              size: 20,
                               color: Colors.black54,
                             ),
                             const SizedBox(width: 8),
@@ -169,7 +169,7 @@ class MalfunctionPage extends StatelessWidget {
                               child: Text(
                                 machine,
                                 style: const TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 16,
                                   fontStyle: FontStyle.italic,
                                   color: Colors.black54,
                                 ),
@@ -183,7 +183,7 @@ class MalfunctionPage extends StatelessWidget {
                           children: [
                             const Icon(
                               Icons.error,
-                              size: 16,
+                              size: 20,
                               color: Colors.red,
                             ),
                             const SizedBox(width: 8),
@@ -191,7 +191,7 @@ class MalfunctionPage extends StatelessWidget {
                               child: Text(
                                 description,
                                 style: const TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 17,
                                   color: Colors.black54,
                                 ),
                               ),
@@ -236,14 +236,14 @@ class MalfunctionPage extends StatelessWidget {
                                 Text(
                                   date,
                                   style: const TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 15,
                                     color: Colors.black45,
                                   ),
                                 ),
                                 Text(
                                   time,
                                   style: const TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 15,
                                     color: Colors.black45,
                                   ),
                                 ),

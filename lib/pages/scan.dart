@@ -92,7 +92,8 @@ class _ScanPageState extends State<ScanPage> {
       final lastCheckedTime = lastCheckedTimestamp.toDate();
 
       // 30 dakika kontrol süresi
-      final thirtyMinutesAgo = DateTime.now().subtract(Duration(minutes: 30));
+      final thirtyMinutesAgo =
+          DateTime.now().subtract(const Duration(minutes: 30));
 
       if (lastCheckedTime.isAfter(thirtyMinutesAgo)) {
         // Eğer son kontrol 30 dakika içinde yapılmışsa, uyarı ver
@@ -147,7 +148,7 @@ class _ScanPageState extends State<ScanPage> {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.camera_alt, size: 40), // Kamera ikonu
+                  icon: const Icon(Icons.camera_alt, size: 40), // Kamera ikonu
                   onPressed: _pickImage, // Kamera açma
                 ),
               ],
@@ -265,7 +266,7 @@ class _ScanPageState extends State<ScanPage> {
                             child: Text(
                               'ARIZA BİLDİR',
                               style: GoogleFonts.tourney(
-                                fontSize: 26,
+                                fontSize: 22,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.black,
                               ),
@@ -294,7 +295,7 @@ class _ScanPageState extends State<ScanPage> {
                             child: Text(
                               'KONTROL EDİLDİ',
                               style: GoogleFonts.tourney(
-                                fontSize: 26,
+                                fontSize: 22,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.black,
                               ),
