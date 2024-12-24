@@ -336,10 +336,10 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
 
-  // Derece girmesi için pop-up gösterme fonksiyonu
+  bool _isSubmitting = false; // Gönder butonu durumu
+
   void _showTemperaturePopup(BuildContext context, String machineName) async {
-    final TextEditingController _temperatureController =
-        TextEditingController();
+    final TextEditingController temperatureController = TextEditingController();
 
     // Check if the machine has already been checked in the last 30 minutes
     final checkedSnapshot = await _firestore
@@ -359,7 +359,6 @@ class _ScanPageState extends State<ScanPage> {
           DateTime.now().subtract(const Duration(minutes: 30));
 
       if (lastCheckedTime.isAfter(thirtyMinutesAgo)) {
-        // Eğer son kontrol 30 dakika içinde yapılmışsa, uyarı ver
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Bu makineyi zaten kontrol ettiniz!')),
         );
@@ -376,13 +375,13 @@ class _ScanPageState extends State<ScanPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
+              const Text(
                 'Lütfen makine derecesini giriniz (°C):\n(Derece girerken , yerine . kullanınız)',
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 10),
               TextField(
-                controller: _temperatureController,
+                controller: temperatureController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -399,22 +398,31 @@ class _ScanPageState extends State<ScanPage> {
             ),
             TextButton(
               onPressed: () async {
-                final temperature = _temperatureController.text;
+                if (_isSubmitting)
+                  return; // Eğer işlem devam ediyorsa buton çalışmaz
+                _isSubmitting = true; // İşlem başladı
+
+                final temperature = temperatureController.text;
                 if (temperature.isNotEmpty) {
-                  final userData = await _getUserData();
-                  String userName = userData['name'] ?? 'Unknown';
-                  await _firestore.collection('checked').add({
-                    'user_name': userName,
-                    'machine_name': machineName,
-                    'timestamp': Timestamp.now(),
-                    'temperature':
-                        double.tryParse(temperature) ?? 0.0, // Derece
-                  });
-                  Navigator.of(context).pop();
-                  _closeAllPopups(); // Pop-up'ları kapatıyoruz
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Derece kaydedildi!')),
-                  );
+                  try {
+                    final userData = await _getUserData();
+                    String userName = userData['name'] ?? 'Unknown';
+                    await _firestore.collection('checked').add({
+                      'user_name': userName,
+                      'machine_name': machineName,
+                      'timestamp': Timestamp.now(),
+                      'temperature': double.tryParse(temperature) ?? 0.0,
+                    });
+                    Navigator.of(context).pop();
+                    _closeAllPopups(); // Pop-up'ları kapatıyoruz
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Derece kaydedildi!')),
+                    );
+                  } finally {
+                    _isSubmitting = false; // İşlem bitti
+                  }
+                } else {
+                  _isSubmitting = false; // Eğer giriş boşsa durumu sıfırla
                 }
               },
               child: const Text('Gönder'),
@@ -426,7 +434,7 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   void _showFillLevelPopup(BuildContext context, String machineName) async {
-    final TextEditingController _fillLevelController = TextEditingController();
+    final TextEditingController fillLevelController = TextEditingController();
 
     // Check if the machine has already been checked in the last 30 minutes
     final checkedSnapshot = await _firestore
@@ -446,7 +454,6 @@ class _ScanPageState extends State<ScanPage> {
           DateTime.now().subtract(const Duration(minutes: 30));
 
       if (lastCheckedTime.isAfter(thirtyMinutesAgo)) {
-        // Eğer son kontrol 30 dakika içinde yapılmışsa, uyarı ver
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Bu makineyi zaten kontrol ettiniz!')),
         );
@@ -463,13 +470,13 @@ class _ScanPageState extends State<ScanPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
+              const Text(
                 'Lütfen doluluk oranını giriniz (%):',
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 10),
               TextField(
-                controller: _fillLevelController,
+                controller: fillLevelController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -486,21 +493,33 @@ class _ScanPageState extends State<ScanPage> {
             ),
             TextButton(
               onPressed: () async {
-                final fillLevel = _fillLevelController.text;
+                if (_isSubmitting)
+                  return; // Eğer işlem devam ediyorsa buton çalışmaz
+                _isSubmitting = true; // İşlem başladı
+
+                final fillLevel = fillLevelController.text;
                 if (fillLevel.isNotEmpty) {
-                  final userData = await _getUserData();
-                  String userName = userData['name'] ?? 'Unknown';
-                  await _firestore.collection('checked').add({
-                    'user_name': userName,
-                    'machine_name': machineName,
-                    'timestamp': Timestamp.now(),
-                    'fill_level': int.tryParse(fillLevel) ?? 0, // Doluluk oranı
-                  });
-                  Navigator.of(context).pop();
-                  _closeAllPopups(); // Pop-up'ları kapatıyoruz
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Doluluk oranı kaydedildi!')),
-                  );
+                  try {
+                    final userData = await _getUserData();
+                    String userName = userData['name'] ?? 'Unknown';
+                    await _firestore.collection('checked').add({
+                      'user_name': userName,
+                      'machine_name': machineName,
+                      'timestamp': Timestamp.now(),
+                      'fill_level':
+                          int.tryParse(fillLevel) ?? 0, // Doluluk oranı
+                    });
+                    Navigator.of(context).pop();
+                    _closeAllPopups(); // Pop-up'ları kapatıyoruz
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Doluluk oranı kaydedildi!')),
+                    );
+                  } finally {
+                    _isSubmitting = false; // İşlem bitti
+                  }
+                } else {
+                  _isSubmitting = false; // Eğer giriş boşsa durumu sıfırla
                 }
               },
               child: const Text('Gönder'),
