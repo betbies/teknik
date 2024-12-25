@@ -44,19 +44,26 @@ class _ShiftsPageState extends State<ShiftsPage> {
       DateTime timestamp = (record['timestamp'] as Timestamp).toDate();
       String machineName = record['machine_name'];
       String userName = record['user_name'];
+      int fillLevel = record['fill_level'] ?? 0; // Doluluk oranı
+      double temperature = record['temperature'] ?? 0.0; // Derece
+
       String formattedHour = timestamp.hour.toString().padLeft(2, '0');
       String formattedMinute = timestamp.minute.toString().padLeft(2, '0');
       String time = "$formattedHour:$formattedMinute";
 
+      Map<String, dynamic> data = {
+        'user_name': userName,
+        'time': time,
+        'fill_level': fillLevel,
+        'temperature': temperature,
+      };
+
       if (timestamp.hour >= 0 && timestamp.hour < 8) {
-        shiftC[machineName] = (shiftC[machineName] ?? [])
-          ..add({'user_name': userName, 'time': time});
+        shiftC[machineName] = (shiftC[machineName] ?? [])..add(data);
       } else if (timestamp.hour >= 8 && timestamp.hour < 16) {
-        shiftA[machineName] = (shiftA[machineName] ?? [])
-          ..add({'user_name': userName, 'time': time});
+        shiftA[machineName] = (shiftA[machineName] ?? [])..add(data);
       } else if (timestamp.hour >= 16 && timestamp.hour < 24) {
-        shiftB[machineName] = (shiftB[machineName] ?? [])
-          ..add({'user_name': userName, 'time': time});
+        shiftB[machineName] = (shiftB[machineName] ?? [])..add(data);
       }
     }
 
@@ -109,13 +116,20 @@ class _ShiftsPageState extends State<ShiftsPage> {
                     maxLines: null, // Alt satıra kaydırma
                   ),
                   ...entry.value.map((record) {
+                    String fillLevelText = record['fill_level'] != 0
+                        ? "\n%${record['fill_level']}"
+                        : "";
+                    String temperatureText = record['temperature'] != 0.0
+                        ? "\n${record['temperature']}°C"
+                        : "";
+
                     return Text(
-                      "${record['user_name']} - ${record['time']}",
+                      "${record['user_name']} - ${record['time']}$fillLevelText$temperatureText",
                       style:
                           const TextStyle(fontSize: 14, color: Colors.black87),
                       textAlign: TextAlign.center,
-                      overflow: TextOverflow.visible, // Alt satıra kaydırma
-                      maxLines: null, // Alt satıra kaydırma
+                      overflow: TextOverflow.visible,
+                      maxLines: null,
                     );
                   }),
                   const Divider(color: Colors.grey),
