@@ -71,9 +71,9 @@ class MalfunctionPage extends StatelessWidget {
                       date: formattedDate,
                       time: formattedTime,
                       imagePath: imagePath,
-                      imageUrl: imageUrl, // Add this line
-                      documentId: malfunctionDocs[index]
-                          .id, // Belge ID'si burada ekleniyor
+                      imageUrl: imageUrl,
+                      documentId: malfunctionDocs[index].id,
+                      malfunctionData: malfunctionData, // Bu satırı ekleyin
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -96,6 +96,7 @@ class MalfunctionPage extends StatelessWidget {
     required String imagePath,
     required String imageUrl,
     required String documentId, // Arıza doküman ID'si
+    required Map<String, dynamic> malfunctionData,
   }) {
     final random = Random();
     final randomAngle = (random.nextDouble() - 0.5) * 0.05;
@@ -230,30 +231,67 @@ class MalfunctionPage extends StatelessWidget {
                           ),
                         const SizedBox(height: 4),
                         // Arıza tarihi ve saatine ek olarak ikonun gösterimi
+                        // Arıza tarihi ve saatine ek olarak ikonun gösterimi
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.check_circle,
-                                    color: Colors.green,
-                                    size: 30,
+                                // completed_at tarihini burada ekliyoruz
+                                if (malfunctionData['completed_at'] !=
+                                    null) ...[
+                                  Row(
+                                    children: [
+                                      Text(
+                                        DateFormat('dd/MM/yyyy HH:mm').format(
+                                          (malfunctionData['completed_at']
+                                                  as Timestamp)
+                                              .toDate(),
+                                        ),
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              Colors.green, // Aynı yeşil renk
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const IconButton(
+                                        icon: Icon(
+                                          Icons.check_circle,
+                                          color: Colors.green,
+                                          size: 30,
+                                        ),
+                                        onPressed: null, // Artık tıklanamaz
+                                      ),
+                                    ],
                                   ),
-                                  onPressed: () async {
-                                    // Arıza tamamlandı olarak işaretleniyor
-                                    await FirebaseFirestore.instance
-                                        .collection('error')
-                                        .doc(
-                                            documentId) // Arıza doküman ID'si ile güncelleme yapılacak
-                                        .update({
-                                      'completed_at':
-                                          FieldValue.serverTimestamp(),
-                                    });
-                                  },
-                                ),
+                                  const SizedBox(height: 4),
+                                ] else ...[
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.check_circle,
+                                      color: Colors
+                                          .red, // Tamamlanmamış arızalar için kırmızı
+                                      size: 30,
+                                    ),
+                                    onPressed: malfunctionData[
+                                                'completed_at'] ==
+                                            null
+                                        ? () async {
+                                            // Eğer 'completed_at' daha önce ayarlanmamışsa güncelleniyor
+                                            await FirebaseFirestore.instance
+                                                .collection('error')
+                                                .doc(documentId)
+                                                .update({
+                                              'completed_at':
+                                                  FieldValue.serverTimestamp(),
+                                            });
+                                          }
+                                        : null, // Eğer zaten tamamlanmışsa tıklanamaz hale getiriliyor
+                                  ),
+                                ],
                                 Text(
                                   date,
                                   style: const TextStyle(
