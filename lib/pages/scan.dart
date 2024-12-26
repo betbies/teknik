@@ -398,8 +398,9 @@ class _ScanPageState extends State<ScanPage> {
             ),
             TextButton(
               onPressed: () async {
-                if (_isSubmitting)
+                if (_isSubmitting) {
                   return; // Eğer işlem devam ediyorsa buton çalışmaz
+                }
                 _isSubmitting = true; // İşlem başladı
 
                 final temperature = temperatureController.text;
@@ -493,8 +494,9 @@ class _ScanPageState extends State<ScanPage> {
             ),
             TextButton(
               onPressed: () async {
-                if (_isSubmitting)
+                if (_isSubmitting) {
                   return; // Eğer işlem devam ediyorsa buton çalışmaz
+                }
                 _isSubmitting = true; // İşlem başladı
 
                 final fillLevel = fillLevelController.text;

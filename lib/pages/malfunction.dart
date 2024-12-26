@@ -72,6 +72,8 @@ class MalfunctionPage extends StatelessWidget {
                       time: formattedTime,
                       imagePath: imagePath,
                       imageUrl: imageUrl, // Add this line
+                      documentId: malfunctionDocs[index]
+                          .id, // Belge ID'si burada ekleniyor
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -91,8 +93,9 @@ class MalfunctionPage extends StatelessWidget {
     required String description,
     required String date,
     required String time,
-    required String imagePath, // Bu kısmı değiştireceğiz
-    required String imageUrl, // Bu satırı ekledik
+    required String imagePath,
+    required String imageUrl,
+    required String documentId, // Arıza doküman ID'si
   }) {
     final random = Random();
     final randomAngle = (random.nextDouble() - 0.5) * 0.05;
@@ -200,7 +203,6 @@ class MalfunctionPage extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        // Buradaki imagePath yerine imageUrl ekliyoruz
                         if (imagePath.isNotEmpty)
                           GestureDetector(
                             onTap: () {
@@ -214,26 +216,44 @@ class MalfunctionPage extends StatelessWidget {
                             ),
                           ),
                         const SizedBox(height: 4),
-                        // Eğer image_url varsa, bunu da göstereceğiz
                         if (imagePath.isEmpty && imageUrl.isNotEmpty)
                           GestureDetector(
                             onTap: () {
                               _showFullImage(context, imageUrl);
                             },
                             child: Image.network(
-                              imageUrl, // Firestore'dan gelen URL
+                              imageUrl,
                               height: 200,
                               width: double.infinity,
                               fit: BoxFit.cover,
                             ),
                           ),
                         const SizedBox(height: 4),
+                        // Arıza tarihi ve saatine ek olarak ikonun gösterimi
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                    size: 30,
+                                  ),
+                                  onPressed: () async {
+                                    // Arıza tamamlandı olarak işaretleniyor
+                                    await FirebaseFirestore.instance
+                                        .collection('error')
+                                        .doc(
+                                            documentId) // Arıza doküman ID'si ile güncelleme yapılacak
+                                        .update({
+                                      'completed_at':
+                                          FieldValue.serverTimestamp(),
+                                    });
+                                  },
+                                ),
                                 Text(
                                   date,
                                   style: const TextStyle(
