@@ -260,22 +260,7 @@ class MalfunctionPage extends StatelessWidget {
                                   Row(
                                     children: [
                                       Text(
-                                        // Burada kullanıcı adı ve tarih arasına - ekliyoruz
-                                        '$currentUserName - ${DateFormat('dd/MM/yyyy HH:mm').format(
-                                          (malfunctionData['completed_at']
-                                                  as Timestamp)
-                                              .toDate(),
-                                        )}',
-                                        style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.green,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        malfunctionData['completed_by'] ??
-                                            currentUserName,
+                                        '${malfunctionData['completed_by'] ?? ''} - ${DateFormat('dd/MM/yyyy HH:mm').format((malfunctionData['completed_at'] as Timestamp).toDate())}',
                                         style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
