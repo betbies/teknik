@@ -532,7 +532,7 @@ class _ShiftsPageState extends State<ShiftsPage> {
                       Expanded(
                         child: DropdownButton<int>(
                           value: year,
-                          items: List.generate(10, (index) => 2024 - index)
+                          items: List.generate(10, (index) => 2025 - index)
                               .map((year) => DropdownMenuItem<int>(
                                     value: year,
                                     child: Text(

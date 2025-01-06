@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 import 'dart:io';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // FirebaseAuth'ı import ediyoruz
 
 class MalfunctionPage extends StatelessWidget {
   const MalfunctionPage({super.key});
@@ -95,11 +96,29 @@ class MalfunctionPage extends StatelessWidget {
     required String time,
     required String imagePath,
     required String imageUrl,
-    required String documentId, // Arıza doküman ID'si
+    required String documentId,
     required Map<String, dynamic> malfunctionData,
   }) {
     final random = Random();
     final randomAngle = (random.nextDouble() - 0.5) * 0.05;
+
+    // Firebase Authentication'dan kullanıcı ID'sini alıyoruz
+    String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    String currentUserName = 'Bilinmiyor'; // Varsayılan değer
+
+    if (currentUserId != null) {
+      // Firestore'dan kullanıcı adı alıyoruz
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .get()
+          .then((doc) {
+        if (doc.exists) {
+          // Kullanıcı adı var ise Firestore'dan alıyoruz
+          currentUserName = doc.data()?['name'] ?? 'Bilinmiyor';
+        }
+      });
+    }
 
     return Stack(
       children: [
@@ -230,30 +249,37 @@ class MalfunctionPage extends StatelessWidget {
                             ),
                           ),
                         const SizedBox(height: 4),
-                        // Arıza tarihi ve saatine ek olarak ikonun gösterimi
-                        // Arıza tarihi ve saatine ek olarak ikonun gösterimi
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                // completed_at tarihini burada ekliyoruz
                                 if (malfunctionData['completed_at'] !=
                                     null) ...[
                                   Row(
                                     children: [
                                       Text(
-                                        DateFormat('dd/MM/yyyy HH:mm').format(
+                                        // Burada kullanıcı adı ve tarih arasına - ekliyoruz
+                                        '$currentUserName - ${DateFormat('dd/MM/yyyy HH:mm').format(
                                           (malfunctionData['completed_at']
                                                   as Timestamp)
                                               .toDate(),
-                                        ),
+                                        )}',
                                         style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
-                                          color:
-                                              Colors.green, // Aynı yeşil renk
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        malfunctionData['completed_by'] ??
+                                            currentUserName,
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green,
                                         ),
                                       ),
                                       const SizedBox(width: 8),
@@ -263,7 +289,7 @@ class MalfunctionPage extends StatelessWidget {
                                           color: Colors.green,
                                           size: 30,
                                         ),
-                                        onPressed: null, // Artık tıklanamaz
+                                        onPressed: null,
                                       ),
                                     ],
                                   ),
@@ -272,24 +298,23 @@ class MalfunctionPage extends StatelessWidget {
                                   IconButton(
                                     icon: const Icon(
                                       Icons.check_circle,
-                                      color: Colors
-                                          .red, // Tamamlanmamış arızalar için kırmızı
+                                      color: Colors.red,
                                       size: 30,
                                     ),
                                     onPressed: malfunctionData[
                                                 'completed_at'] ==
                                             null
                                         ? () async {
-                                            // Eğer 'completed_at' daha önce ayarlanmamışsa güncelleniyor
                                             await FirebaseFirestore.instance
                                                 .collection('error')
                                                 .doc(documentId)
                                                 .update({
                                               'completed_at':
                                                   FieldValue.serverTimestamp(),
+                                              'completed_by': currentUserName,
                                             });
                                           }
-                                        : null, // Eğer zaten tamamlanmışsa tıklanamaz hale getiriliyor
+                                        : null,
                                   ),
                                 ],
                                 Text(
