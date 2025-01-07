@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class MachinePage extends StatelessWidget {
   const MachinePage({super.key});
@@ -133,29 +134,21 @@ class MachinePage extends StatelessWidget {
     );
   }
 
+  void _closeAllPopups(BuildContext context) {
+    Navigator.of(context, rootNavigator: true)
+        .popUntil((route) => route.isFirst);
+  }
+
   Future<void> _showMachineDetails(
       BuildContext context, String machineName) async {
     try {
       var querySnapshot = await FirebaseFirestore.instance
-          .collection('checked')
+          .collection('error')
           .where('machine_name', isEqualTo: machineName)
           .orderBy('timestamp', descending: true)
-          .limit(1)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        var checkedDoc = querySnapshot.docs.first.data();
-        var timestamp = checkedDoc['timestamp']?.toDate();
-        var userName = checkedDoc['user_name'] ?? 'Bilinmiyor';
-
-        // Saat ve dakika formatlama
-        String formattedHour =
-            timestamp?.hour.toString().padLeft(2, '0') ?? '00';
-        String formattedMinute =
-            timestamp?.minute.toString().padLeft(2, '0') ?? '00';
-        String time = "$formattedHour:$formattedMinute";
-
-        // Detayları gösteren bir dialog açıyoruz
         showDialog(
           context: context,
           builder: (context) {
@@ -163,21 +156,68 @@ class MachinePage extends StatelessWidget {
               title: Center(child: Text(machineName)),
               content: SizedBox(
                 width: 300, // Sabit genişlik
-                height: 150, // Sabit yükseklik
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'En Son Kontrol:\n${timestamp != null ? '${timestamp.toLocal()}'.split(' ')[0] : 'Bilinmiyor'} $time\n$userName',
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                height: 350, // Sabit yükseklik
+                child: ListView.builder(
+                  itemCount: querySnapshot.docs.length,
+                  itemBuilder: (context, index) {
+                    var errorDoc = querySnapshot.docs[index].data();
+
+                    var error = errorDoc['error'] ?? 'Bilinmiyor';
+                    var imageUrl = errorDoc['image_url'] ?? '';
+                    var timestamp = errorDoc['timestamp']?.toDate();
+                    var formattedTimestamp = timestamp != null
+                        ? DateFormat('dd/MM/yyyy HH:mm').format(timestamp)
+                        : 'Bilinmiyor';
+                    var userName = errorDoc['user_name'] ?? 'Bilinmiyor';
+
+                    var completedAt = errorDoc['completed_at']?.toDate();
+                    var formattedCompletedAt = completedAt != null
+                        ? DateFormat('dd/MM/yyyy HH:mm').format(completedAt)
+                        : 'Tamamlanmadı';
+                    var completedBy = errorDoc['completed_by'] ?? '-';
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '$error',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8.0),
+                          if (imageUrl.isNotEmpty)
+                            Center(
+                              child: Image.network(
+                                imageUrl,
+                                height: 150,
+                                width: 150,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Text('Görsel yüklenemedi');
+                                },
+                              ),
+                            ),
+                          const SizedBox(height: 8.0),
+                          Text('Arıza Tarihi: $formattedTimestamp'),
+                          Text('Arızayı Bildiren: $userName'),
+                          const SizedBox(height: 8.0),
+                          Text(
+                              'Arızanın Tamamlanma Tarihi: $formattedCompletedAt'),
+                          Text('Arızayı Tamamlayan: $completedBy'),
+                          const Divider(),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    _closeAllPopups(context); // Tüm pop-up'ları kapat
                   },
                   child: const Text('Kapat'),
                 ),
@@ -195,13 +235,14 @@ class MachinePage extends StatelessWidget {
                 width: 300, // Sabit genişlik
                 height: 100, // Sabit yükseklik
                 child: Center(
-                  child: Text('Bu makine hakkında bilgi bulunmamaktadır.'),
+                  child:
+                      Text('Bu makine hakkında arıza kaydı bulunmamaktadır.'),
                 ),
               ),
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    _closeAllPopups(context); // Tüm pop-up'ları kapat
                   },
                   child: const Text('Kapat'),
                 ),
@@ -211,7 +252,7 @@ class MachinePage extends StatelessWidget {
         );
       }
     } catch (e) {
-      print("Error fetching machine details: $e");
+      print("Error fetching machine errors: $e");
     }
   }
 }
